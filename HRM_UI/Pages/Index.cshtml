@@ -1,0 +1,26 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    if (role == "Admin")
+    {
+        Response.Redirect("/Admin/Dashboard");
+    }
+    else if (role == "Manager")
+    {
+        Response.Redirect("/Manager/Dashboard");
+    }
+    else
+    {
+        Response.Redirect("/Employee/Dashboard");
+    }
+}
+else
+{
+    Response.Redirect("/Login");
+}
