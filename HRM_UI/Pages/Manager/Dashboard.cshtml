@@ -1,0 +1,187 @@
+@page
+@model HRM_UI.Pages.Manager.DashboardModel
+@{
+    ViewData["Title"] = "Manager Dashboard";
+}
+
+<style>
+    .dashboard-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 var(--space-5);
+    }
+    
+    .dashboard-header {
+        margin-bottom: var(--space-6);
+    }
+    
+    .dashboard-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-2) 0;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+        margin: 0;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+    }
+    
+    .stat-card {
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border-default);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        transition: all var(--transition-fast);
+    }
+    
+    .stat-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-border-muted);
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+        margin-bottom: var(--space-2);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+    
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0;
+    }
+    
+    .stat-badge {
+        display: inline-block;
+        background: var(--color-success-bg);
+        color: var(--color-success);
+        padding: 0.25rem 0.625rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: var(--space-2);
+    }
+    
+    .welcome-card {
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border-default);
+        border-radius: var(--radius-md);
+        padding: var(--space-6);
+        text-align: center;
+    }
+    
+    .welcome-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--color-success-bg);
+        color: var(--color-success);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-4);
+        font-size: 2rem;
+    }
+    
+    .welcome-message {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin-bottom: var(--space-2);
+    }
+    
+    .loading-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--color-border-muted);
+        border-top-color: var(--color-success);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: var(--space-4);
+    }
+    
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Manager Dashboard</h1>
+        <p class="dashboard-subtitle">Oversee team operations and manage workflows</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink: 0;">
+                <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM7 4v5h2V4H7zm0 6v2h2v-2H7z"/>
+            </svg>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+    else if (Model.Dashboard != null)
+    {
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                    Your Role
+                </div>
+                <h2 class="stat-value">@Model.Dashboard.Role</h2>
+                <span class="stat-badge">Team Manager</span>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                    </svg>
+                    Login Time
+                </div>
+                <h2 class="stat-value">@Model.Dashboard.LoginTime.ToString("HH:mm")</h2>
+                <span class="stat-badge">@Model.Dashboard.LoginTime.ToString("MMM dd, yyyy")</span>
+            </div>
+        </div>
+        
+        <div class="welcome-card">
+            <div class="welcome-icon">📊</div>
+            <h2 class="welcome-message">@Model.Dashboard.Message</h2>
+            <p style="color: var(--color-text-secondary); margin: 0;">You have access to team management and reporting features.</p>
+        </div>
+    }
+    else
+    {
+        <div class="welcome-card">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p style="color: var(--color-text-secondary); margin: 0;">Loading dashboard data...</p>
+            </div>
+        </div>
+    }
+</div>

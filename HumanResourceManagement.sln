@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36511.14 d17.14
+VisualStudioVersion = 17.14.36511.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HumanResourceManagement", "HumanResourceManagement\HumanResourceManagement.csproj", "{552B4F91-E34C-47BC-A21D-B1254864F495}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRM_API", "HumanResourceManagement\HRM_API.csproj", "{552B4F91-E34C-47BC-A21D-B1254864F495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HumanResourceManagement1", "HumanResourceManagement1\HumanResourceManagement1.csproj", "{50333E9F-A0CC-45FC-A6FB-4864765B28FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRM_UI", "HRM_UI\HRM_UI.csproj", "{399FCD9D-3A82-4ADC-BE46-434C07E0BBBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{552B4F91-E34C-47BC-A21D-B1254864F495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{552B4F91-E34C-47BC-A21D-B1254864F495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{552B4F91-E34C-47BC-A21D-B1254864F495}.Release|Any CPU.Build.0 = Release|Any CPU
-		{50333E9F-A0CC-45FC-A6FB-4864765B28FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50333E9F-A0CC-45FC-A6FB-4864765B28FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50333E9F-A0CC-45FC-A6FB-4864765B28FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50333E9F-A0CC-45FC-A6FB-4864765B28FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{399FCD9D-3A82-4ADC-BE46-434C07E0BBBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{399FCD9D-3A82-4ADC-BE46-434C07E0BBBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{399FCD9D-3A82-4ADC-BE46-434C07E0BBBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{399FCD9D-3A82-4ADC-BE46-434C07E0BBBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
