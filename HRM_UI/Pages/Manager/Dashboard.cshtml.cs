@@ -10,7 +10,6 @@ namespace HRM_UI.Pages.Manager
     public class DashboardModel : PageModel
     {
         private readonly IHttpClientFactory _httpClientFactory;
-
         public DashboardDto? Dashboard { get; set; }
         public string? ErrorMessage { get; set; }
 
@@ -23,7 +22,7 @@ namespace HRM_UI.Pages.Manager
         {
             try
             {
-                var client = _httpClientFactory.CreateClient("HRMAPI");
+                var client = _httpClientFactory.CreateClient("HRM_API");
                 
                 var response = await client.GetAsync("/api/manager/dashboard");
                 

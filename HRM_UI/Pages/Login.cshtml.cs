@@ -14,6 +14,7 @@ namespace HRM_UI.Pages
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+
         [BindProperty]
         public string Email { get; set; } = string.Empty;
 
@@ -21,6 +22,7 @@ namespace HRM_UI.Pages
         public string Password { get; set; } = string.Empty;
 
         public string? ErrorMessage { get; set; }
+
 
         public LoginModel(IHttpClientFactory httpClientFactory)
         {
@@ -50,9 +52,9 @@ namespace HRM_UI.Pages
 
             try
             {
-                var client = _httpClientFactory.CreateClient("HRMAPI");
+                var client = _httpClientFactory.CreateClient("HRM_API");
                 
-                // Use DTO instead of anonymous object
+                // create LoginRequestDto
                 var loginRequest = new LoginRequest 
                 { 
                     Email = this.Email, 
@@ -70,7 +72,7 @@ namespace HRM_UI.Pages
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Use DTO for response
+                    // Parse response to DTO 
                     var result = JsonSerializer.Deserialize<LoginResponse>(
                         responseContent, 
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
@@ -78,14 +80,14 @@ namespace HRM_UI.Pages
 
                     if (result?.User != null)
                     {
-                        // Validate and parse role using Enum
+                        // Validate and parse role 
                         if (!IsValidRole(result.User.Role, out Role userRole))
                         {
-                            ErrorMessage = "Invalid user role. Please contact administrator.";
+                            ErrorMessage = "Invalid user role.";
                             return Page();
                         }
 
-                        // Create claims with enum-based role
+                        // Create claims with Role
                         var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.NameIdentifier, result.User.Id),
@@ -102,7 +104,7 @@ namespace HRM_UI.Pages
                         var authProperties = new AuthenticationProperties
                         {
                             IsPersistent = false,
-                            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
                         };
 
                         await HttpContext.SignInAsync(
@@ -116,7 +118,7 @@ namespace HRM_UI.Pages
                     }
                 }
 
-                ErrorMessage = "Invalid email or password. Please try again.";
+                ErrorMessage = "Invalid email or password.";
                 return Page();
             }
             catch (Exception ex)

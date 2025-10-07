@@ -1,4 +1,3 @@
-
 using HumanResourceManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +14,7 @@ namespace HumanResourceManagement
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            // builder.Services.AddSwaggerGen();
 
             // 1. Configure Database Connection
             builder.Services.AddDbContext<HRMDbContext>(options =>
@@ -37,10 +36,10 @@ namespace HumanResourceManagement
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
-                // User settings
+                // Username settings
                 options.User.AllowedUserNameCharacters =
                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = true; // User email setting
 
                 // Email confirmation 
                 options.SignIn.RequireConfirmedEmail = false; 
@@ -56,7 +55,7 @@ namespace HumanResourceManagement
                     options.Cookie.Name = "HRM.Auth";
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SameSite = SameSiteMode.Lax;
-                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                     options.SlidingExpiration = true;
                     options.LoginPath = "/api/auth/unauthorized";
                     options.AccessDeniedPath = "/api/auth/forbidden";

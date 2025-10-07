@@ -48,7 +48,7 @@ public class AuthController : ControllerBase
 
         if (result.Succeeded)
         {
-            // Step 4: Get user roles from AspNetUserRoles table
+            // Get user roles from AspNetUserRoles table
             var roles = await _userManager.GetRolesAsync(user);
             
             // IMPORTANT: User MUST have a role assigned
@@ -61,7 +61,7 @@ public class AuthController : ControllerBase
                 });
             }
 
-            // Return structured DTO response
+            // Return Dto
             var response = new LoginResponse
             {
                 Success = true,
@@ -77,7 +77,7 @@ public class AuthController : ControllerBase
             return Ok(response);
         }
 
-        // HTTP 423 Locked: Account locked due to multiple failed attempts
+        // HTTP 423 Locked: Account locked due to > 5 failed attempts
         if (result.IsLockedOut)
         {
             return StatusCode(423, new ErrorResponse
@@ -109,15 +109,17 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetProfile()
     {
-        // Extract user ID from authentication cookie claims
+        // Extract user ID from authentication cookie 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
         if (string.IsNullOrEmpty(userId))
         {
-            return BadRequest(new ErrorResponse 
-            { 
-                Message = "User ID not found in authentication token" 
-            });
+            return BadRequest(
+                new ErrorResponse 
+                { 
+                    Message = "User ID not found in authentication token" 
+                }
+            );
         }
         
         var user = await _userManager.FindByIdAsync(userId);
@@ -137,7 +139,7 @@ public class AuthController : ControllerBase
         {
             return StatusCode(500, new ErrorResponse
             { 
-                Message = "User configuration error. Please contact administrator.",
+                Message = "User configuration error.",
                 ErrorCode = "NO_ROLE_ASSIGNED"
             });
         }

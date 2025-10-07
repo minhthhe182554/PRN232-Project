@@ -11,6 +11,62 @@
         padding: 0 var(--space-5);
     }
     
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 1fr; /* Mặc định cho màn hình nhỏ */
+        gap: var(--space-6);
+    }
+
+    @@media (min-width: 900px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr 280px; /* Nội dung chính 1fr, thanh bên 280px */
+        }
+    }
+
+    .dashboard-sidebar {
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border-default);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+    }
+
+    .sidebar-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin-bottom: var(--space-4);
+    }
+
+    .sidebar-nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-nav-item {
+        margin-bottom: var(--space-2);
+    }
+
+    .sidebar-nav-link {
+        display: block;
+        padding: var(--space-2) var(--space-3);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        transition: background var(--transition-fast), color var(--transition-fast);
+    }
+
+    .sidebar-nav-link:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+    }
+
+    .sidebar-nav-link.active {
+        background: var(--color-accent-subtle);
+        color: var(--color-accent-primary);
+        font-weight: 500;
+    }
+    
     .dashboard-header {
         margin-bottom: var(--space-6);
     }
@@ -144,35 +200,51 @@
     }
     else if (Model.Dashboard != null)
     {
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                    </svg>
-                    Your Role
+        <div class="dashboard-layout">
+            <main class="dashboard-main-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                            </svg>
+                            Your Role
+                        </div>
+                        <h2 class="stat-value">@Model.Dashboard.Role</h2>
+                        <span class="stat-badge">Administrator</span>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                            </svg>
+                            Login Time
+                        </div>
+                        <h2 class="stat-value">@Model.Dashboard.LoginTime.ToString("HH:mm")</h2>
+                        <span class="stat-badge">@Model.Dashboard.LoginTime.ToString("MMM dd, yyyy")</span>
+                    </div>
                 </div>
-                <h2 class="stat-value">@Model.Dashboard.Role</h2>
-                <span class="stat-badge">Administrator</span>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-label">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
-                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
-                    </svg>
-                    Login Time
+                
+                <div class="welcome-card">
+                    <div class="welcome-icon">👋</div>
+                    <h2 class="welcome-message">@Model.Dashboard.Message</h2>
+                    <p style="color: var(--color-text-secondary); margin: 0;">You have full access to all administrative features.</p>
                 </div>
-                <h2 class="stat-value">@Model.Dashboard.LoginTime.ToString("HH:mm")</h2>
-                <span class="stat-badge">@Model.Dashboard.LoginTime.ToString("MMM dd, yyyy")</span>
-            </div>
-        </div>
-        
-        <div class="welcome-card">
-            <div class="welcome-icon">👋</div>
-            <h2 class="welcome-message">@Model.Dashboard.Message</h2>
-            <p style="color: var(--color-text-secondary); margin: 0;">You have full access to all administrative features.</p>
+            </main>
+
+            <aside class="dashboard-sidebar">
+                <h3 class="sidebar-title">Management</h3>
+                <ul class="sidebar-nav-list">
+                    <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link active">User Management</a></li>
+                    <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link">Department Management</a></li>
+                    <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link">Leave Requests</a></li>
+                    <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link">Calendar & Events</a></li>
+                    <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link">Policies & Documents</a></li>
+                    <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link">System Settings</a></li>
+                </ul>
+            </aside>
         </div>
     }
     else
