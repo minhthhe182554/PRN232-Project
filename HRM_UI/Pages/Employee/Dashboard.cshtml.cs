@@ -23,7 +23,7 @@ namespace HRM_UI.Pages.Employee
         {
             try
             {
-                var client = _httpClientFactory.CreateClient("HRMAPI");
+                var client = _httpClientFactory.CreateClient("HRM_API");
                 
                 var response = await client.GetAsync("/api/employee/dashboard");
                 

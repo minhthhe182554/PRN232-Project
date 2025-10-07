@@ -12,7 +12,7 @@ namespace HRM_UI
 			builder.Services.AddRazorPages();
 
 			// Configure HttpClient for API calls
-			builder.Services.AddHttpClient("HRMAPI", client =>
+			builder.Services.AddHttpClient("HRM_API", client =>
 			{
 				client.BaseAddress = new Uri("http://localhost:5228/api");
 				client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -31,7 +31,7 @@ namespace HRM_UI
 					options.LoginPath = "/Login";
 					options.LogoutPath = "/Logout";
 					options.AccessDeniedPath = "/AccessDenied";
-					options.ExpireTimeSpan = TimeSpan.FromHours(8);
+					options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 					options.SlidingExpiration = true;
 				});
 
@@ -40,7 +40,7 @@ namespace HRM_UI
 			// Add Session
 			builder.Services.AddSession(options =>
 			{
-				options.IdleTimeout = TimeSpan.FromHours(8);
+				options.IdleTimeout = TimeSpan.FromMinutes(60);
 				options.Cookie.HttpOnly = true;
 				options.Cookie.IsEssential = true;
 			});
@@ -61,7 +61,7 @@ namespace HRM_UI
 			app.UseAuthorization();
 
 			app.MapRazorPages();
-
+			
 			app.Run();
 		}
 	}
