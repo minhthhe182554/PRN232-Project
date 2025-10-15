@@ -15,8 +15,7 @@ public class EmployeeController : ControllerBase
         var dashboard = new DashboardDto
         {
             Role = "Employee",
-            LoginTime = DateTime.Now,
-            Message = "Welcome to Employee Dashboard"
+            LoginTime = DateTime.Now
         };
 
         return Ok(dashboard);

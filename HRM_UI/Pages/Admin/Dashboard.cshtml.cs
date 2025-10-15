@@ -25,7 +25,7 @@ namespace HRM_UI.Pages.Admin
             {
                 var client = _httpClientFactory.CreateClient("HRM_API");
                 
-                var response = await client.GetAsync("/api/admin/dashboard");
+                var response = await client.GetAsync("admin/dashboard");
                 
                 if (response.IsSuccessStatusCode)
                 {

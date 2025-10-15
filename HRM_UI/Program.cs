@@ -14,7 +14,7 @@ namespace HRM_UI
 			// Configure HttpClient for API calls
 			builder.Services.AddHttpClient("HRM_API", client =>
 			{
-				client.BaseAddress = new Uri("http://localhost:5228/api");
+				client.BaseAddress = new Uri("http://localhost:5228/api/");
 				client.DefaultRequestHeaders.Add("Accept", "application/json");
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler

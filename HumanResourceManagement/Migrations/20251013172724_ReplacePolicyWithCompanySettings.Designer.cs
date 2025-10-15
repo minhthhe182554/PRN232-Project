@@ -4,6 +4,7 @@ using HumanResourceManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HumanResourceManagement.Migrations
 {
     [DbContext(typeof(HRMDbContext))]
-    partial class HRMDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251013172724_ReplacePolicyWithCompanySettings")]
+    partial class ReplacePolicyWithCompanySettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,6 +55,49 @@ namespace HumanResourceManagement.Migrations
                         .HasDatabaseName("IX_Attendance_UserId_CheckIn");
 
                     b.ToTable("Attendances");
+                });
+
+            modelBuilder.Entity("HumanResourceManagement.Models.CompanySettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AnnualLeaveMaxDays")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LateEarlyDeductionPercent")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("LateEarlyThresholdMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MonthlyOvertimeHoursLimit")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("WorkEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("WorkStartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CompanySettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AnnualLeaveMaxDays = 12,
+                            LateEarlyDeductionPercent = 10m,
+                            LateEarlyThresholdMinutes = 15,
+                            MonthlyOvertimeHoursLimit = 40,
+                            WorkEndTime = new TimeSpan(0, 17, 0, 0, 0),
+                            WorkStartTime = new TimeSpan(0, 9, 0, 0, 0)
+                        });
                 });
 
             modelBuilder.Entity("HumanResourceManagement.Models.Department", b =>
@@ -212,49 +258,6 @@ namespace HumanResourceManagement.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("OvertimeRequests");
-                });
-
-            modelBuilder.Entity("HumanResourceManagement.Models.Policy", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnnualLeaveMaxDays")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("LateEarlyDeductionPercent")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<int>("LateEarlyThresholdMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MonthlyOvertimeHoursLimit")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("WorkEndTime")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan>("WorkStartTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Policies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AnnualLeaveMaxDays = 12,
-                            LateEarlyDeductionPercent = 10m,
-                            LateEarlyThresholdMinutes = 15,
-                            MonthlyOvertimeHoursLimit = 40,
-                            WorkEndTime = new TimeSpan(0, 17, 0, 0, 0),
-                            WorkStartTime = new TimeSpan(0, 9, 0, 0, 0)
-                        });
                 });
 
             modelBuilder.Entity("HumanResourceManagement.Models.SharedFile", b =>

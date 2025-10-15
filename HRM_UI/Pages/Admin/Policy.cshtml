@@ -1,7 +1,7 @@
-@page
-@model HRM_UI.Pages.Admin.DashboardModel
+﻿@page
+@model HRM_UI.Pages.Admin.PolicyModel
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Admin Dashboard - Policy";
 }
 
 <style>
@@ -246,8 +246,8 @@
 
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1 class="dashboard-title">Dashboard</h1>
-        <p class="dashboard-subtitle">Manage your organization.</p>
+        <h1 class="dashboard-title">Admin Dashboard</h1>
+        <p class="dashboard-subtitle">Manage your organization's resources and settings.</p>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -259,32 +259,32 @@
             <span>@Model.ErrorMessage</span>
         </div>
     }
-    else if (Model.Dashboard != null)
+    else 
     {
         <div class="dashboard-layout">
             <aside class="dashboard-sidebar">
                 <h3 class="sidebar-title">Management</h3>
                 <ul class="sidebar-nav-list">
                     <li class="sidebar-nav-item">
-                        <a asp-page="/Admin/User" class="sidebar-nav-link">
+                        <a asp-page="/Admin/User" asp-page-handler="Index" class="sidebar-nav-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332C4.154 12.014 4.001 12.754 4 13h10z" /></svg>
                             User Management
                         </a>
                     </li>
                     <li class="sidebar-nav-item">
-                        <a asp-page="/Admin/Department" class="sidebar-nav-link">
+                        <a asp-page="/Admin/Department" asp-page-handler="Index" class="sidebar-nav-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 1a.5.5 0 0 0 0 1h1.11L2.897 6.24a.5.5 0 0 0 .491.565l2.553.159a.5.5 0 0 0 .456-.273L8.4 3.84a.5.5 0 0 0-.273-.658L5.35 1.597a.5.5 0 0 0-.523-.012L.5 3.847V1.5A.5.5 0 0 0 .5 1zM8 3.5a.5.5 0 0 1 .582.423l.907 3.631a.5.5 0 0 1-.318.582l-3.415.854a.5.5 0 0 1-.582-.423L4.26 4.934a.5.5 0 0 1 .318-.582l3.415-.853A.5.5 0 0 1 8 3.5zM14 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM14.5 9a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0zM5.5 14a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0zM11 11.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm-4.328-.555a.5.5 0 0 1 .256-.472l2.427-1.456a.5.5 0 0 1 .744.544l-1.456 2.427a.5.5 0 0 1-.744-.544l-.227-.379-.379-.227a.5.5 0 0 1-.299-.744z" /></svg>
                             Department Management
                         </a>
                     </li>
                     <li class="sidebar-nav-item">
-                        <a asp-page="/Admin/Policy" class="sidebar-nav-link">
+                        <a asp-page="/Admin/Policy" class="sidebar-nav-link active">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" /><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z" /></svg>
                             Policies
                         </a>
                     </li>
                     <li class="sidebar-nav-item">
-                        <a asp-page="/Admin/Setting" class="sidebar-nav-link">
+                        <a asp-page="/Admin/Setting" asp-page-handler="Index" class="sidebar-nav-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413-1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" /></svg>
                             System Settings
                         </a>
@@ -292,41 +292,7 @@
                 </ul>
             </aside>
 
-            <main class="dashboard-main-content">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
-                            </svg>
-                            Your Role
-                        </div>
-                        <h2 class="stat-value">@Model.Dashboard.Role</h2>
-                        <p class="stat-sub-value">Administrator</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
-                            </svg>
-                            Login Time
-                        </div>
-                        <h2 class="stat-value">@Model.Dashboard.LoginTime.ToString("HH:mm")</h2>
-                        <p class="stat-sub-value">@Model.Dashboard.LoginTime.ToString("dd MMMM, yyyy")</p>
-                    </div>
-                </div>
-            </main>
-        </div>
-    }
-    else
-    {
-        <div class="welcome-card">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p style="color: var(--color-text-secondary); margin: 0;">Loading dashboard data...</p>
-            </div>
+            Policy settings
         </div>
     }
 </div>
