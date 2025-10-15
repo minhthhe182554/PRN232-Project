@@ -15,8 +15,7 @@ public class ManagerController : ControllerBase
         var dashboard = new DashboardDto
         {
             Role = "Manager",
-            LoginTime = DateTime.Now,
-            Message = "Welcome to Manager Dashboard"
+            LoginTime = DateTime.Now
         };
 
         return Ok(dashboard);

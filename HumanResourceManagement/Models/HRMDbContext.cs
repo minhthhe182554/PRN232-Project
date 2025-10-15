@@ -141,21 +141,39 @@ namespace HumanResourceManagement.Models
                     .HasDatabaseName("IX_Holiday_Date");
             });
 
-            // Policy entity configuration
+            // CompanySettings configuration (single-row table)
             modelBuilder.Entity<Policy>(entity =>
             {
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(100);
+                entity.Property(e => e.WorkStartTime)
+                    .IsRequired();
 
-                entity.Property(e => e.Value)
-                    .IsRequired()
-                    .HasMaxLength(1000);
+                entity.Property(e => e.WorkEndTime)
+                    .IsRequired();
 
-                // Unique constraint on Name
-                entity.HasIndex(p => p.Name)
-                    .IsUnique()
-                    .HasDatabaseName("IX_Policy_Name_Unique");
+                entity.Property(e => e.LateEarlyThresholdMinutes)
+                    .IsRequired();
+
+                entity.Property(e => e.LateEarlyDeductionPercent)
+                    .HasColumnType("decimal(5,2)")
+                    .IsRequired();
+
+                entity.Property(e => e.MonthlyOvertimeHoursLimit)
+                    .IsRequired();
+
+                entity.Property(e => e.AnnualLeaveMaxDays)
+                    .IsRequired();
+
+                // Seed default single row with Id = 1
+                entity.HasData(new Policy
+                {
+                    Id = 1,
+                    WorkStartTime = new TimeSpan(9, 0, 0),
+                    WorkEndTime = new TimeSpan(17, 0, 0),
+                    LateEarlyThresholdMinutes = 15,
+                    LateEarlyDeductionPercent = 10m,
+                    MonthlyOvertimeHoursLimit = 40,
+                    AnnualLeaveMaxDays = 12
+                });
             });
 
             // SharedFile entity configuration
