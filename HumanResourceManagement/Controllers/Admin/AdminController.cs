@@ -5,6 +5,7 @@ using HumanResourceManagement.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using HRM_API.Dtos.Dashboard.Policy;
+using Microsoft.AspNetCore.Identity;
 
 namespace HumanResourceManagement.Controllers.Admin;
 
@@ -13,13 +14,15 @@ namespace HumanResourceManagement.Controllers.Admin;
 [ApiController]
 public class AdminController : ControllerBase
 {
+    private readonly UserManager<User> _userManager;
     private readonly HRMDbContext _dbContext;
     private readonly IMapper _mapper;
 
-    public AdminController(HRMDbContext dbContext, IMapper mapper) 
+    public AdminController(HRMDbContext dbContext, IMapper mapper, UserManager<User> userManager) 
     {
         _dbContext = dbContext;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     [HttpGet("dashboard")]
@@ -81,14 +84,53 @@ public class AdminController : ControllerBase
                     .SetProperty(p => p.AnnualLeaveMaxDays, policy => newPolicy.AnnualLeaveMaxDays)
                     );
 
-            return Ok(_mapper.Map<PolicyDto>(newPolicy));
-        }
-        catch (Exception ex)
-        {
-            System.Console.WriteLine($"Error: {ex.Message}");
+            var updatedPolicyDto = _mapper.Map<PolicyDto>(newPolicy);
 
+            return Ok(updatedPolicyDto);
+        }
+        catch (Exception)
+        {
             return StatusCode(StatusCodes.Status500InternalServerError,
                 "An internal server error occurred. Please try again later.");
-        }
-    }
+        } 
+    } 
+
+    // [HttpGet("users")]
+    // public async Task<IActionResult> GetUsers()
+    // {
+    //     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    //     if (string.IsNullOrEmpty(userId))
+    //     {
+    //         return BadRequest(
+    //             new ErrorResponse 
+    //             { 
+    //                 Message = "User ID not found in authentication token" 
+    //             }
+    //         );
+    //     }
+
+    //     try
+    //     {
+    //         var userDtos = new List<UserDto>();
+    //         var users = await _dbContext.Users.ToListAsync();
+
+    //         foreach (var user in users)
+    //         {
+    //             userDtos.Add(new UserDto 
+    //             {
+    //                 Id = userId,
+    //                 FullName = user.FullName,
+    //                 Address = user.Address,
+    //                 ProfileImgUrl = user.ProfileImgUrl,
+    //                 Salary = user.Salary,
+    //                 LeaveDaysTaken = await _dbContext.
+    //             });
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+
+    //     }
+    // }
 }
