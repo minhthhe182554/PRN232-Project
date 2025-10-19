@@ -48,32 +48,6 @@ namespace HumanResourceManagement
             .AddEntityFrameworkStores<HRMDbContext>()
             .AddDefaultTokenProviders();
 
-            // 3. Configure Cookie Authentication
-            // builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            //     .AddCookie(options =>
-            //     {
-            //         options.Cookie.Name = "HRM.Auth";
-            //         options.Cookie.HttpOnly = true;
-            //         options.Cookie.SameSite = SameSiteMode.Lax;
-            //         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-            //         options.SlidingExpiration = true;
-            //         options.Events = new CookieAuthenticationEvents
-            //         {
-            //             OnRedirectToLogin = ctx =>
-            //             {
-            //                 ctx.Response.Clear();
-            //                 ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            //                 return Task.CompletedTask;
-            //             },
-            //             OnRedirectToAccessDenied = ctx =>
-            //             {
-            //                 ctx.Response.Clear();
-            //                 ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-            //                 return Task.CompletedTask;
-            //             }
-            //         };
-            //     });
-
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = "HRM.Auth";
