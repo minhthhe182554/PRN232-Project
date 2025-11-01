@@ -1,4 +1,5 @@
 using HRM_Client.Models;
+using HRM_Client.Utils;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -18,7 +19,7 @@ namespace HRM_Client.Services
 
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
-            var json = JsonSerializer.Serialize(request);
+            var json = JsonSerializer.Serialize(request, JsonOptions.DefaultOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync("/api/auth/login", content);
@@ -27,10 +28,7 @@ namespace HRM_Client.Services
                 return null;
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            return JsonSerializer.Deserialize<LoginResponse>(responseContent, JsonOptions.DefaultOptions);
         }
 
         public void SaveToken(string token)
