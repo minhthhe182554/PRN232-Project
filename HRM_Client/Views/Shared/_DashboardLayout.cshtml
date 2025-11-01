@@ -158,6 +158,7 @@
             color: #24292f;
             text-decoration: none;
             font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             transition: background-color 0.2s;
             border: none;
             background: none;
@@ -336,13 +337,19 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <ul class="sidebar-menu">
+                @{
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                }
                 <li class="sidebar-menu-item">
-                    <a href="#" class="sidebar-menu-link active">Dashboard</a>
+                    <a href="/Dashboard/Index" class="sidebar-menu-link @(currentController == "Dashboard" ? "active" : "")">Dashboard</a>
                 </li>
 
                 @if (ViewBag.Role == "Admin")
                 {
                     <div class="sidebar-section-title">Management</div>
+                    <li class="sidebar-menu-item">
+                        <a href="/Policy/Index" class="sidebar-menu-link @(currentController == "Policy" ? "active" : "")">Policy</a>
+                    </li>
                     <li class="sidebar-menu-item">
                         <a href="#" class="sidebar-menu-link">Users</a>
                     </li>
@@ -352,38 +359,42 @@
                     <li class="sidebar-menu-item">
                         <a href="#" class="sidebar-menu-link">Salary Scales</a>
                     </li>
-                    <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Policies</a>
-                    </li>
                 }
-
-                @if (ViewBag.Role == "Manager" || ViewBag.Role == "Admin")
+                else if (ViewBag.Role == "Manager")
                 {
-                    <div class="sidebar-section-title">Team</div>
+                    <div class="sidebar-section-title">Department</div>
                     <li class="sidebar-menu-item">
                         <a href="#" class="sidebar-menu-link">Employees</a>
                     </li>
                     <li class="sidebar-menu-item">
                         <a href="#" class="sidebar-menu-link">Attendance</a>
                     </li>
+                    <div class="sidebar-section-title">Requests</div>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Requests</a>
+                        <a href="#" class="sidebar-menu-link">Leave Requests</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Overtime Requests</a>
+                    </li>
+                    <div class="sidebar-section-title">Documents</div>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Shared Files</a>
                     </li>
                 }
-
-                <div class="sidebar-section-title">Personal</div>
-                <li class="sidebar-menu-item">
-                    <a href="#" class="sidebar-menu-link">My Profile</a>
-                </li>
-                <li class="sidebar-menu-item">
-                    <a href="#" class="sidebar-menu-link">My Attendance</a>
-                </li>
-                <li class="sidebar-menu-item">
-                    <a href="#" class="sidebar-menu-link">My Requests</a>
-                </li>
-                <li class="sidebar-menu-item">
-                    <a href="#" class="sidebar-menu-link">Notifications</a>
-                </li>
+                else if (ViewBag.Role == "Employee")
+                {
+                    <div class="sidebar-section-title">My Work</div>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Attendance</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">My Requests</a>
+                    </li>
+                    <div class="sidebar-section-title">Documents</div>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Shared Files</a>
+                    </li>
+                }
             </ul>
         </aside>
 
@@ -393,6 +404,7 @@
         </main>
     </div>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         // Avatar dropdown toggle
         const avatarButton = document.getElementById('avatarButton');
@@ -410,6 +422,8 @@
             }
         });
     </script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
 

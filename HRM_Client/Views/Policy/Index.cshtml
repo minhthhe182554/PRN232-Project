@@ -1,0 +1,257 @@
+@model HRM_Client.Models.PolicyResponse
+@{
+    ViewBag.Title = "Policy Management";
+    Layout = "_DashboardLayout";
+}
+
+<div class="content-header">
+    <h1 class="content-title">Policy Management</h1>
+    <p class="content-subtitle">Configure company policies and regulations</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="Update" method="post" class="policy-form">
+    <input type="hidden" name="Id" value="@Model.Id" />
+
+    <div class="form-section">
+        <h2 class="section-title">Working Hours</h2>
+        <p class="section-description">Define standard working hours for the company</p>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="WorkStartTime"></label>
+                <input type="time" asp-for="WorkStartTime" 
+                       value="@Model.WorkStartTime.ToString(@"hh\:mm")" 
+                       class="form-control" />
+                <span class="field-description">Official start time of work day</span>
+                <span asp-validation-for="WorkStartTime" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="WorkEndTime"></label>
+                <input type="time" asp-for="WorkEndTime" 
+                       value="@Model.WorkEndTime.ToString(@"hh\:mm")" 
+                       class="form-control" />
+                <span class="field-description">Official end time of work day</span>
+                <span asp-validation-for="WorkEndTime" class="error-message"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="section-title">Late Policy</h2>
+        <p class="section-description">Configure late arrival penalties</p>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="LateThresholdMinutes"></label>
+                <input type="number" asp-for="LateThresholdMinutes" 
+                       value="@Model.LateThresholdMinutes" 
+                       class="form-control" />
+                <span class="field-description">Grace period before considering late (minutes)</span>
+                <span asp-validation-for="LateThresholdMinutes" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LateDeductionPercent"></label>
+                <input type="number" asp-for="LateDeductionPercent" 
+                       value="@Model.LateDeductionPercent" 
+                       step="0.01" 
+                       class="form-control" />
+                <span class="field-description">Percentage of daily salary deducted for being late</span>
+                <span asp-validation-for="LateDeductionPercent" class="error-message"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="section-title">Leave Early Policy</h2>
+        <p class="section-description">Configure early departure penalties</p>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="LeaveEarlyThresholdMinutes"></label>
+                <input type="number" asp-for="LeaveEarlyThresholdMinutes" 
+                       value="@Model.LeaveEarlyThresholdMinutes" 
+                       class="form-control" />
+                <span class="field-description">Grace period before considering leaving early (minutes)</span>
+                <span asp-validation-for="LeaveEarlyThresholdMinutes" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LeaveEarlyDeductionPercent"></label>
+                <input type="number" asp-for="LeaveEarlyDeductionPercent" 
+                       value="@Model.LeaveEarlyDeductionPercent" 
+                       step="0.01" 
+                       class="form-control" />
+                <span class="field-description">Percentage of daily salary deducted for leaving early</span>
+                <span asp-validation-for="LeaveEarlyDeductionPercent" class="error-message"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="section-title">Other Policies</h2>
+        <p class="section-description">Additional company policies and limits</p>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="MonthlyOvertimeHoursLimit"></label>
+                <input type="number" asp-for="MonthlyOvertimeHoursLimit" 
+                       value="@Model.MonthlyOvertimeHoursLimit" 
+                       class="form-control" />
+                <span class="field-description">Maximum overtime hours allowed per month</span>
+                <span asp-validation-for="MonthlyOvertimeHoursLimit" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AnnualLeaveMaxDays"></label>
+                <input type="number" asp-for="AnnualLeaveMaxDays" 
+                       value="@Model.AnnualLeaveMaxDays" 
+                       class="form-control" />
+                <span class="field-description">Maximum annual leave days per year</span>
+                <span asp-validation-for="AnnualLeaveMaxDays" class="error-message"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Update Policy</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    .content-subtitle {
+        font-size: 14px;
+        color: #57606a;
+        margin-top: 8px;
+    }
+
+    .alert-success {
+        background-color: #dafbe1;
+        color: #1a7f37;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    .policy-form {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 32px;
+    }
+
+    .form-section {
+        margin-bottom: 32px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+        margin-bottom: 24px;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 4px;
+    }
+
+    .section-description {
+        font-size: 13px;
+        color: #57606a;
+        margin-bottom: 16px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        padding: 12px;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+    }
+
+    .field-description {
+        font-size: 12px;
+        color: #57606a;
+        margin-top: 6px;
+        line-height: 1.4;
+    }
+
+    .error-message {
+        color: #cf222e;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding-top: 24px;
+        border-top: 1px solid #d0d7de;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        color: #ffffff;
+        background-color: #0969da;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0860ca;
+    }
+
+    .btn-primary:active {
+        background-color: #0757ba;
+    }
+</style>
+
