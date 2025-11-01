@@ -1,0 +1,156 @@
+---
+alwaysApply: false
+---
+## UI/UX Design Guidelines
+
+### Design Philosophy
+- **Minimalist & Clean**: Follow Apple and GitHub design principles
+- **Light Theme Only**: Use light backgrounds with dark text (no dark theme)
+- **Professional & Modern**: Corporate-friendly, suitable for enterprise applications
+- **Content-First**: Remove unnecessary decorations, focus on functionality
+
+### Color Palette
+**Primary Colors:**
+- Primary Blue: `#0969da` (links, CTAs, important elements)
+- Hover Blue: `#0860ca`
+- Active Blue: `#0757ba`
+
+**Neutral Colors:**
+- Text Primary: `#24292f` (main text)
+- Text Secondary: `#57606a` (muted text, descriptions)
+- Background: `#ffffff` (main background)
+- Background Secondary: `#f6f8fa` (cards, hover states)
+- Border: `#d0d7de` (borders, dividers)
+
+**Status Colors:**
+- Success: `#1a7f37`
+- Error/Danger: `#cf222e`
+- Warning: `#bf8700`
+
+### Typography
+- **Font Family**: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif`
+- **Font Weights**: Use 300 (light), 400 (normal), 500 (medium), 600 (semibold)
+- **Avoid**: Bold (700+) unless absolutely necessary
+
+**Sizing Scale:**
+- Page Title: `24px` - `32px` (weight: 300-400)
+- Section Heading: `18px` - `20px` (weight: 400-500)
+- Body Text: `14px` (weight: 400)
+- Small Text: `12px` - `13px` (weight: 400)
+
+### Layout & Spacing
+- **Border Radius**: `6px` for buttons/inputs, `12px` for cards/modals
+- **Spacing Scale**: `4px, 8px, 12px, 16px, 24px, 32px`
+- **Max Width**: Content containers max `1200px`, forms/cards max `400-600px`
+- **Whitespace**: Use generous whitespace - don't cram elements
+
+### Components Style
+
+**Buttons:**
+```css
+Primary: bg:#0969da, color:#fff, padding:12px 24px, radius:6px
+Secondary: bg:#f6f8fa, color:#24292f, border:1px #d0d7de
+Danger: bg:#cf222e, color:#fff
+```
+
+**Input Fields:**
+```css
+Border: 1px solid #d0d7de
+Focus: border:#0969da, box-shadow:0 0 0 3px rgba(9,105,218,0.1)
+Padding: 12px, radius:6px
+```
+
+**Cards:**
+```css
+Background: #ffffff
+Border: 1px solid #d0d7de
+Border-radius: 6px
+Box-shadow: 0 1px 3px rgba(27,31,36,0.12) (on hover)
+```
+
+**Badges/Tags:**
+```css
+Background: #f6f8fa
+Border: 1px solid #d0d7de
+Padding: 6px 12px
+Font-size: 13px
+Border-radius: 6px
+```
+
+### Icons & Graphics
+- **Use Icons Sparingly**: Only for critical actions (login, logout, profile, navigation)
+- **Icon Library**: Inline SVG preferred, 16x16px or 20x20px
+- **Style**: Outline style (stroke-based), not filled
+- **Color**: Inherit from parent text color
+
+### Interaction Patterns
+**Hover Effects:**
+- Subtle background color change (to `#f6f8fa`)
+- No scale/transform effects
+- Smooth transitions: `0.2s ease`
+
+**Active States:**
+- Slightly darker color
+- No dramatic changes
+
+**Disabled States:**
+- Opacity: `0.5`
+- Cursor: `not-allowed`
+
+### Navigation & Layout Structure
+**Navbar:**
+- Fixed top, white background
+- Height: `60px`
+- Border-bottom: `1px solid #d0d7de`
+- Logo left, user info right
+
+**Sidebar:**
+- Fixed left, white background
+- Width: `240px`
+- Border-right: `1px solid #d0d7de`
+- Menu items: padding `8px 24px`, hover `#f6f8fa`
+
+**Content Area:**
+- Padding: `32px`
+- Background: `#f6f8fa` (contrast with white cards)
+
+### Forms & Data Entry
+- Label above input
+- Required fields: asterisk or `(required)` text
+- Error messages: below input, color `#cf222e`, size `13px`
+- Submit button: primary style, full width on mobile
+
+### Feedback & Messaging
+- Success: Light green background `#dafbe1`, green text `#1a7f37`
+- Error: Light red background `#fff5f5`, red text `#cf222e`
+- Warning: Light yellow background `#fff8c5`, yellow text `#bf8700`
+- Info: Light blue background `#ddf4ff`, blue text `#0969da`
+
+### Responsive Design
+- Mobile-first approach
+- Breakpoints: 768px (tablet), 1024px (desktop)
+- Stack elements vertically on mobile
+- Hide sidebar, use hamburger menu on mobile
+
+### Accessibility
+- Minimum contrast ratio: 4.5:1 for text
+- Focus indicators visible and clear
+- Semantic HTML elements
+- ARIA labels where needed
+
+### What to AVOID
+❌ Dark themes
+❌ Excessive animations/transitions
+❌ Gradients (use solid colors)
+❌ Drop shadows everywhere (use sparingly)
+❌ Colorful/rainbow color schemes
+❌ Emojis in UI (text content only)
+❌ Multiple font families
+❌ Comic Sans or decorative fonts
+❌ Centered text for body content
+❌ All caps text (except small labels)
+
+### References
+- GitHub UI components
+- Apple Human Interface Guidelines (web)
+- Linear design system (minimal approach)

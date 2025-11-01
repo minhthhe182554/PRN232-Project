@@ -1,0 +1,119 @@
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "_DashboardLayout";
+}
+
+<div class="content-header">
+    <h1 class="content-title">Welcome back, @ViewBag.FullName</h1>
+    @if (ViewBag.Role != "Admin" && !string.IsNullOrEmpty(ViewBag.DepartmentName as string))
+    {
+        <div style="display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 16px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;">
+            <span style="font-size: 14px; font-weight: 500; color: #0969da;">@ViewBag.DepartmentName</span>
+            <span style="font-size: 14px; color: #57606a;">•</span>
+            <span style="font-size: 14px; font-weight: 500; color: #24292f;">Level @ViewBag.Level</span>
+        </div>
+    }
+</div>
+
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+    }
+
+    .dashboard-card {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 20px;
+        transition: box-shadow 0.2s;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 1px 3px rgba(27,31,36,0.12), 0 8px 24px rgba(27,31,36,0.12);
+    }
+
+    .card-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #57606a;
+        margin-bottom: 12px;
+    }
+
+    .card-value {
+        font-size: 32px;
+        font-weight: 300;
+        color: #24292f;
+    }
+
+    .card-description {
+        font-size: 13px;
+        color: #57606a;
+        margin-top: 8px;
+    }
+</style>
+
+<div class="dashboard-grid">
+    @if (ViewBag.Role == "Admin")
+    {
+        <div class="dashboard-card">
+            <div class="card-title">Total Employees</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Active users in system</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">Departments</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Total departments</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">Pending Requests</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Awaiting approval</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">Today's Attendance</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Checked in today</div>
+        </div>
+    }
+    else if (ViewBag.Role == "Manager")
+    {
+        <div class="dashboard-card">
+            <div class="card-title">Team Members</div>
+            <div class="card-value">-</div>
+            <div class="card-description">In your department</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">Pending Requests</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Awaiting your approval</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">Today's Attendance</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Team checked in</div>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-card">
+            <div class="card-title">My Attendance</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Days this month</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">Annual Leave</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Days remaining</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-title">My Requests</div>
+            <div class="card-value">-</div>
+            <div class="card-description">Pending approval</div>
+        </div>
+    }
+</div>
+

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - HRM System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #f6f8fa;
+            color: #24292f;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #d0d7de;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 60px;
+        }
+
+        .navbar-brand {
+            font-size: 18px;
+            font-weight: 500;
+            color: #24292f;
+            text-decoration: none;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background-color: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #57606a;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #0969da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .avatar:hover {
+            background-color: #0860ca;
+        }
+
+        .avatar-dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.15);
+            width: 280px;
+            z-index: 1000;
+        }
+
+        .avatar-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 16px;
+            border-bottom: 1px solid #d0d7de;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #0969da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .dropdown-user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dropdown-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #24292f;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-username {
+            font-size: 13px;
+            color: #57606a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-menu {
+            padding: 8px 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            color: #24292f;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f6f8fa;
+        }
+
+        .dropdown-item svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #d0d7de;
+            margin: 8px 0;
+        }
+
+        .dropdown-item.danger {
+            color: #cf222e;
+        }
+
+        .dropdown-item.danger:hover {
+            background-color: #fff5f5;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            margin-top: 60px;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: #ffffff;
+            border-right: 1px solid #d0d7de;
+            padding: 24px 0;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu-item {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 24px;
+            color: #24292f;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-menu-link:hover {
+            background-color: #f6f8fa;
+        }
+
+        .sidebar-menu-link.active {
+            background-color: #f6f8fa;
+            font-weight: 500;
+            border-left: 2px solid #0969da;
+        }
+
+        .sidebar-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #57606a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 16px;
+        }
+
+        /* Content */
+        .content {
+            margin-left: 240px;
+            padding: 32px;
+            flex: 1;
+        }
+
+        .content-header {
+            margin-bottom: 24px;
+        }
+
+        .content-title {
+            font-size: 24px;
+            font-weight: 400;
+            color: #24292f;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #57606a;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">My Company</a>
+        <div class="navbar-right">
+            <div class="user-badge">
+                <span>@ViewBag.Role</span>
+            </div>
+            <div class="user-info">
+                <div class="avatar" id="avatarButton">
+                    @if (!string.IsNullOrEmpty(ViewBag.FullName as string))
+                    {
+                        @ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
+                    }
+                    else
+                    {
+                        @ViewBag.Username?.ToString().Substring(0, 1).ToUpper()
+                    }
+                </div>
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">
+                            @if (!string.IsNullOrEmpty(ViewBag.FullName as string))
+                            {
+                                @ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
+                            }
+                            else
+                            {
+                                @ViewBag.Username?.ToString().Substring(0, 1).ToUpper()
+                            }
+                        </div>
+                        <div class="dropdown-user-info">
+                            <div class="dropdown-name">@ViewBag.FullName</div>
+                            <div class="dropdown-username">@@@ViewBag.Username</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="/Profile" class="dropdown-item">
+                            <svg viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
+                            </svg>
+                            <span>My Profile</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <form asp-controller="Auth" asp-action="Logout" method="post" style="margin: 0;">
+                            <button type="submit" class="dropdown-item danger">
+                                <svg viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M2 2.75C2 1.784 2.784 1 3.75 1h2.5a.75.75 0 0 1 0 1.5h-2.5a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h2.5a.75.75 0 0 1 0 1.5h-2.5A1.75 1.75 0 0 1 2 13.25Zm10.44 4.5-1.97-1.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.97-1.97H6.75a.75.75 0 0 1 0-1.5Z"></path>
+                                </svg>
+                                <span>Sign out</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                    <a href="#" class="sidebar-menu-link active">Dashboard</a>
+                </li>
+
+                @if (ViewBag.Role == "Admin")
+                {
+                    <div class="sidebar-section-title">Management</div>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Users</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Departments</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Salary Scales</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Policies</a>
+                    </li>
+                }
+
+                @if (ViewBag.Role == "Manager" || ViewBag.Role == "Admin")
+                {
+                    <div class="sidebar-section-title">Team</div>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Employees</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Attendance</a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-link">Requests</a>
+                    </li>
+                }
+
+                <div class="sidebar-section-title">Personal</div>
+                <li class="sidebar-menu-item">
+                    <a href="#" class="sidebar-menu-link">My Profile</a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#" class="sidebar-menu-link">My Attendance</a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#" class="sidebar-menu-link">My Requests</a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="#" class="sidebar-menu-link">Notifications</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script>
+        // Avatar dropdown toggle
+        const avatarButton = document.getElementById('avatarButton');
+        const avatarDropdown = document.getElementById('avatarDropdown');
+
+        avatarButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            avatarDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!avatarButton.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                avatarDropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
+

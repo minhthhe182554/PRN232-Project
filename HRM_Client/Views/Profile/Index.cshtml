@@ -1,0 +1,78 @@
+@{
+    ViewBag.Title = "My Profile";
+    Layout = "_DashboardLayout";
+}
+
+<style>
+    .profile-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 60px 20px;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: #0969da;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 48px;
+        font-weight: 500;
+        margin-bottom: 32px;
+    }
+
+    .profile-name {
+        font-size: 24px;
+        font-weight: 400;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .profile-username {
+        font-size: 16px;
+        color: #57606a;
+        margin-bottom: 32px;
+    }
+
+    .btn-logout-profile {
+        padding: 12px 32px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #ffffff;
+        background-color: #cf222e;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-logout-profile:hover {
+        background-color: #a40e26;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-avatar">
+        @if (!string.IsNullOrEmpty(ViewBag.FullName as string))
+        {
+            @ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
+        }
+        else
+        {
+            @ViewBag.Username?.ToString().Substring(0, 1).ToUpper()
+        }
+    </div>
+    <div class="profile-name">@ViewBag.FullName</div>
+    <div class="profile-username">@@@ViewBag.Username</div>
+    
+    <form asp-controller="Auth" asp-action="Logout" method="post">
+        <button type="submit" class="btn-logout-profile">Sign Out</button>
+    </form>
+</div>
+
