@@ -29,6 +29,8 @@ builder.Services.AddHttpClient<ApiClient>(client =>
     client.BaseAddress = new Uri(apiBaseUrl);
 });
 
+builder.Services.AddScoped<PolicyService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
