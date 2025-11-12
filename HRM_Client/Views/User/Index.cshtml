@@ -1,0 +1,609 @@
+@model HRM_Client.Models.UserList
+@{
+    ViewBag.Title = "User Management";
+    Layout = "_DashboardLayout";
+    
+    var allUsers = (Model?.ActiveUsers ?? new List<HRM_Client.Models.UserListDto>())
+        .Concat(Model?.InactiveUsers ?? new List<HRM_Client.Models.UserListDto>())
+        .ToList();
+    
+    var adminUsers = allUsers.Where(u => u.Role == "Admin").ToList();
+    var managerUsers = allUsers.Where(u => u.Role == "Manager").ToList();
+    var employeeUsers = allUsers.Where(u => u.Role == "Employee").ToList();
+}
+
+<div class="content-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="content-title">User Management</h1>
+            <p class="content-subtitle">Manage all users in the system</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;">
+            <span style="font-size: 14px; color: #57606a;">Total Users:</span>
+            <span style="font-size: 20px; font-weight: 500; color: #24292f;">@Model?.Count</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .users-container {
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+    }
+
+    .role-section {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .role-section-header {
+        padding-bottom: 12px;
+        border-bottom: 2px solid #d0d7de;
+    }
+
+    .role-section-title {
+        font-size: 20px;
+        font-weight: 400;
+        color: #24292f;
+    }
+
+    .user-section {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #d0d7de;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 24px;
+        padding: 0 8px;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #57606a;
+    }
+
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .user-table thead {
+        background-color: #f6f8fa;
+    }
+
+    .user-table th {
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 500;
+        color: #57606a;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .user-table td {
+        padding: 16px 20px;
+        font-size: 14px;
+        color: #24292f;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .user-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .user-table tbody tr:hover {
+        background-color: #f6f8fa;
+    }
+
+    .user-name {
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .user-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #57606a;
+        white-space: nowrap;
+    }
+
+    .user-badge.admin {
+        background-color: #ddf4ff;
+        border-color: #0969da;
+        color: #0969da;
+    }
+
+    .user-badge.manager {
+        background-color: #fff8c5;
+        border-color: #bf8700;
+        color: #bf8700;
+    }
+
+    .user-badge.employee {
+        background-color: #f6f8fa;
+        border-color: #d0d7de;
+        color: #57606a;
+    }
+
+    .level-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 400;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: #24292f;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-action:hover {
+        background-color: #f6f8fa;
+    }
+
+    .btn-action.danger {
+        color: #cf222e;
+        border-color: #cf222e;
+    }
+
+    .btn-action.danger:hover {
+        background-color: #fff5f5;
+    }
+
+    .btn-action.primary {
+        background-color: #0969da;
+        color: #ffffff;
+        border-color: #0969da;
+    }
+
+    .btn-action.primary:hover {
+        background-color: #0860ca;
+    }
+
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: #57606a;
+        font-size: 14px;
+    }
+
+    .department-info {
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    .managed-dept {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background-color: #dafbe1;
+        border: 1px solid #1a7f37;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #1a7f37;
+        white-space: nowrap;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .status-badge.active {
+        background-color: #dafbe1;
+        border: 1px solid #1a7f37;
+        color: #1a7f37;
+    }
+
+    .status-badge.inactive {
+        background-color: #fff5f5;
+        border: 1px solid #cf222e;
+        color: #cf222e;
+    }
+</style>
+
+<div class="users-container">
+    <!-- Admin Section -->
+    @if (adminUsers.Any())
+    {
+        <div class="role-section">
+            <div class="role-section-header">
+                <h2 class="role-section-title">Admin</h2>
+            </div>
+            
+            <div class="user-section">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Level</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in adminUsers)
+                        {
+                            <tr style="@(user.IsActive ? "" : "opacity: 0.6;")">
+                                <td>@user.Id</td>
+                                <td>
+                                    <span class="user-name">@user.FullName</span>
+                                </td>
+                                <td>
+                                    <span class="level-badge">@user.Level</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(user.DepartmentName))
+                                    {
+                                        <span class="department-info">@user.DepartmentName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="department-info">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="status-badge active">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge inactive">Inactive</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- Manager Section -->
+    @if (managerUsers.Any())
+    {
+        var activeManagers = managerUsers.Where(u => u.IsActive).ToList();
+        var inactiveManagers = managerUsers.Where(u => !u.IsActive).ToList();
+        
+        <div class="role-section">
+            <div class="role-section-header">
+                <h2 class="role-section-title">Managers</h2>
+            </div>
+            
+            @if (activeManagers.Any())
+            {
+                <div class="user-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span>Active</span>
+                            <span class="section-count">@activeManagers.Count</span>
+                        </div>
+                    </div>
+                    
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Level</th>
+                                <th>Department</th>
+                                <th>Managed Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in activeManagers)
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>
+                                        <span class="user-name">@user.FullName</span>
+                                    </td>
+                                    <td>
+                                        <span class="level-badge">@user.Level</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.DepartmentName))
+                                        {
+                                            <span class="department-info">@user.DepartmentName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="department-info">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.ManagedDepartmentName))
+                                        {
+                                            <span class="managed-dept">@user.ManagedDepartmentName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="department-info">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action" onclick="resetPassword(@user.Id)">Reset Password</button>
+                                            <button class="btn-action danger" onclick="banUser(@user.Id)">Ban</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            
+            @if (inactiveManagers.Any())
+            {
+                <div class="user-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span>Banned</span>
+                            <span class="section-count">@inactiveManagers.Count</span>
+                        </div>
+                    </div>
+                    
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Level</th>
+                                <th>Department</th>
+                                <th>Managed Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in inactiveManagers)
+                            {
+                                <tr style="opacity: 0.6;">
+                                    <td>@user.Id</td>
+                                    <td>
+                                        <span class="user-name">@user.FullName</span>
+                                    </td>
+                                    <td>
+                                        <span class="level-badge">@user.Level</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.DepartmentName))
+                                        {
+                                            <span class="department-info">@user.DepartmentName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="department-info">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.ManagedDepartmentName))
+                                        {
+                                            <span class="managed-dept">@user.ManagedDepartmentName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="department-info">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action primary" onclick="unbanUser(@user.Id)">Unban</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Employee Section -->
+    @if (employeeUsers.Any())
+    {
+        var activeEmployees = employeeUsers.Where(u => u.IsActive).ToList();
+        var inactiveEmployees = employeeUsers.Where(u => !u.IsActive).ToList();
+        
+        <div class="role-section">
+            <div class="role-section-header">
+                <h2 class="role-section-title">Employees</h2>
+            </div>
+            
+            @if (activeEmployees.Any())
+            {
+                <div class="user-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span>Active</span>
+                            <span class="section-count">@activeEmployees.Count</span>
+                        </div>
+                    </div>
+                    
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Level</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in activeEmployees)
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>
+                                        <span class="user-name">@user.FullName</span>
+                                    </td>
+                                    <td>
+                                        <span class="level-badge">@user.Level</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.DepartmentName))
+                                        {
+                                            <span class="department-info">@user.DepartmentName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="department-info">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action" onclick="resetPassword(@user.Id)">Reset Password</button>
+                                            <button class="btn-action danger" onclick="banUser(@user.Id)">Ban</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            
+            @if (inactiveEmployees.Any())
+            {
+                <div class="user-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span>Banned</span>
+                            <span class="section-count">@inactiveEmployees.Count</span>
+                        </div>
+                    </div>
+                    
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Level</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in inactiveEmployees)
+                            {
+                                <tr style="opacity: 0.6;">
+                                    <td>@user.Id</td>
+                                    <td>
+                                        <span class="user-name">@user.FullName</span>
+                                    </td>
+                                    <td>
+                                        <span class="level-badge">@user.Level</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.DepartmentName))
+                                        {
+                                            <span class="department-info">@user.DepartmentName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="department-info">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action primary" onclick="unbanUser(@user.Id)">Unban</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function resetPassword(userId) {
+            if (confirm('Are you sure you want to reset password for this user?')) {
+                // TODO: Implement reset password API call
+                console.log('Reset password for user:', userId);
+            }
+        }
+
+        function banUser(userId) {
+            if (confirm('Are you sure you want to ban this user?')) {
+                // TODO: Implement ban user API call
+                console.log('Ban user:', userId);
+            }
+        }
+
+        function unbanUser(userId) {
+            if (confirm('Are you sure you want to unban this user?')) {
+                // TODO: Implement unban user API call
+                console.log('Unban user:', userId);
+            }
+        }
+    </script>
+}
+
