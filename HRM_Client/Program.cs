@@ -30,6 +30,7 @@ builder.Services.AddHttpClient<ApiClient>(client =>
 });
 
 builder.Services.AddScoped<PolicyService>();
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

@@ -37,6 +37,16 @@ namespace HRM_API.Repositories
             await _context.SaveChangesAsync();
             return user;
         }
+
+        public async Task<List<User>> GetAllWithDetailsAsync()
+        {
+            var users = await _context.Users
+                .Include(u => u.Department)
+                .Include(u => u.ManagedDepartment)
+                .ToListAsync();
+            
+            return users;
+        }
     }
 }
 
