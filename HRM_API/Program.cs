@@ -19,6 +19,7 @@ builder.Services.AddDbContext<HRMDbContext>(options =>
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<SalaryScaleRepository>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<PolicyRepository>();
 builder.Services.AddScoped<PolicyService>();
