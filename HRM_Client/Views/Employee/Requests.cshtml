@@ -1,0 +1,594 @@
+@model HRM_Client.Models.RequestListResponse
+@{
+    ViewBag.Title = "My Requests";
+    Layout = "_DashboardLayout";
+    
+    var requests = Model?.Requests ?? new List<HRM_Client.Models.RequestResponseDto>();
+    var requestStatus = ViewBag.RequestStatus as string ?? "All";
+}
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<div class="content-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="content-title">My Requests</h1>
+            <p class="content-subtitle">View and manage your requests</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;">
+                <span style="font-size: 14px; color: #57606a;">Total Requests:</span>
+                <span style="font-size: 20px; font-weight: 500; color: #24292f;">@requests.Count</span>
+            </div>
+            <button onclick="openCreateModal()" style="padding: 10px 20px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                Create New Request
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .requests-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-top: 24px;
+    }
+
+    .filter-section {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .filter-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 400;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: #24292f;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-btn:hover {
+        background-color: #f6f8fa;
+    }
+
+    .filter-btn.active {
+        background-color: #0969da;
+        border-color: #0969da;
+        color: #ffffff;
+    }
+
+    .requests-table-container {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .requests-table thead {
+        background-color: #f6f8fa;
+    }
+
+    .requests-table th {
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 500;
+        color: #57606a;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .requests-table td {
+        padding: 16px 20px;
+        font-size: 14px;
+        color: #24292f;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .requests-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .requests-table tbody tr:hover {
+        background-color: #f6f8fa;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .status-badge.pending {
+        background-color: #fff8c5;
+        color: #bf8700;
+    }
+
+    .status-badge.approved {
+        background-color: #dafbe1;
+        color: #1a7f37;
+    }
+
+    .status-badge.rejected {
+        background-color: #fff5f5;
+        color: #cf222e;
+    }
+
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        background-color: #f6f8fa;
+        color: #24292f;
+        border: 1px solid #d0d7de;
+    }
+
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: #57606a;
+        font-size: 14px;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: slideDown 0.2s ease;
+    }
+
+    .modal-header {
+        font-size: 18px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+    }
+
+    .form-control textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .error-message {
+        font-size: 13px;
+        color: #cf222e;
+        margin-top: 4px;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #d0d7de;
+    }
+
+    .btn-modal {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 400;
+        border: 1px solid;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-modal-secondary {
+        background-color: #ffffff;
+        border-color: #d0d7de;
+        color: #24292f;
+    }
+
+    .btn-modal-secondary:hover {
+        background-color: #f6f8fa;
+    }
+
+    .btn-modal-primary {
+        background-color: #0969da;
+        border-color: #0969da;
+        color: #ffffff;
+    }
+
+    .btn-modal-primary:hover {
+        background-color: #0860ca;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 24px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .toast {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 12px 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease;
+    }
+
+    .toast.success {
+        border-left: 4px solid #1a7f37;
+    }
+
+    .toast.error {
+        border-left: 4px solid #cf222e;
+    }
+
+    .toast-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .toast-message {
+        flex: 1;
+        font-size: 14px;
+        color: #24292f;
+    }
+
+    @@keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="requests-container">
+    <div class="filter-section">
+        <span class="filter-label">Filter by status:</span>
+        <div class="filter-buttons">
+            <a href="/Employee/Requests" class="filter-btn @(requestStatus == "All" ? "active" : "")">All</a>
+            <a href="/Employee/Requests?status=Pending" class="filter-btn @(requestStatus == "Pending" ? "active" : "")">Pending</a>
+            <a href="/Employee/Requests?status=Processed" class="filter-btn @(requestStatus == "Processed" ? "active" : "")">Processed</a>
+        </div>
+    </div>
+
+    <div class="requests-table-container">
+        @if (requests.Any())
+        {
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Content</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in requests)
+                    {
+                        <tr>
+                            <td>@request.Id</td>
+                            <td>
+                                <span class="type-badge">@request.Type</span>
+                            </td>
+                            <td>@request.StartDate.ToString("yyyy-MM-dd")</td>
+                            <td>@request.EndDate.ToString("yyyy-MM-dd")</td>
+                            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@request.Content">@request.Content</td>
+                            <td>
+                                <span class="status-badge @request.Status.ToLower()">@request.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No requests found for this filter.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create Request Modal -->
+<div class="modal-overlay" id="createModal" onclick="closeCreateModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">Create New Request</div>
+        <form id="createRequestForm" onsubmit="submitRequest(event)">
+            <div class="form-group">
+                <label class="form-label" for="requestType">Request Type *</label>
+                <select id="requestType" class="form-control" required>
+                    <option value="">Select type</option>
+                    <option value="Leave">Leave</option>
+                    <option value="Resignation">Resignation</option>
+                    <option value="Overtime">Overtime</option>
+                </select>
+                <span id="typeError" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="startDate">Start Date *</label>
+                <input type="date" id="startDate" class="form-control" required />
+                <span id="startDateError" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="endDate">End Date *</label>
+                <input type="date" id="endDate" class="form-control" required />
+                <span id="endDateError" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="content">Content *</label>
+                <textarea id="content" class="form-control" required placeholder="Enter request details..."></textarea>
+                <span id="contentError" class="error-message"></span>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-modal btn-modal-secondary" onclick="closeCreateModal()">Cancel</button>
+                <button type="submit" class="btn-modal btn-modal-primary">Create Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal" onclick="closeConfirmModal()">
+    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 480px;">
+        <div class="modal-header" id="confirmTitle"></div>
+        <div style="font-size: 14px; color: #57606a; margin-bottom: 20px; line-height: 1.5;" id="confirmMessage"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal btn-modal-secondary" onclick="closeConfirmModal()">Cancel</button>
+            <button type="button" class="btn-modal btn-modal-primary" id="confirmBtn" onclick="confirmCreateRequest()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    let pendingRequest = null;
+
+    function openCreateModal() {
+        document.getElementById('createModal').classList.add('active');
+        document.getElementById('createRequestForm').reset();
+        clearErrors();
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createModal').classList.remove('active');
+        pendingRequest = null;
+        clearErrors();
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+    }
+
+    function clearErrors() {
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+    }
+
+    function submitRequest(event) {
+        event.preventDefault();
+        clearErrors();
+
+        const type = document.getElementById('requestType').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const content = document.getElementById('content').value.trim();
+
+        // Validation
+        let hasError = false;
+        if (!type) {
+            document.getElementById('typeError').textContent = 'Please select a request type';
+            hasError = true;
+        }
+        if (!startDate) {
+            document.getElementById('startDateError').textContent = 'Please select a start date';
+            hasError = true;
+        }
+        if (!endDate) {
+            document.getElementById('endDateError').textContent = 'Please select an end date';
+            hasError = true;
+        }
+        if (!content) {
+            document.getElementById('contentError').textContent = 'Please enter request content';
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        if (new Date(startDate) > new Date(endDate)) {
+            document.getElementById('endDateError').textContent = 'End date must be after start date';
+            return;
+        }
+
+        pendingRequest = {
+            type: type,
+            startDate: startDate,
+            endDate: endDate,
+            content: content
+        };
+
+        // Show confirmation modal
+        const typeNames = {
+            'Leave': 'Leave Request',
+            'Resignation': 'Resignation Request',
+            'Overtime': 'Overtime Request'
+        };
+
+        document.getElementById('confirmTitle').textContent = 'Confirm Request';
+        document.getElementById('confirmMessage').innerHTML = `
+            <div style="margin-bottom: 12px;"><strong>Type:</strong> ${typeNames[type] || type}</div>
+            <div style="margin-bottom: 12px;"><strong>Start Date:</strong> ${new Date(startDate).toLocaleDateString()}</div>
+            <div style="margin-bottom: 12px;"><strong>End Date:</strong> ${new Date(endDate).toLocaleDateString()}</div>
+            <div><strong>Content:</strong> ${content}</div>
+        `;
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function confirmCreateRequest() {
+        if (!pendingRequest) return;
+
+        fetch('/Employee/CreateRequest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pendingRequest)
+        })
+        .then(response => response.json())
+        .then(data => {
+            closeConfirmModal();
+            closeCreateModal();
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showToast(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            closeConfirmModal();
+            closeCreateModal();
+            showToast('An error occurred. Please try again.', 'error');
+        });
+    }
+
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' 
+            ? '<svg class="toast-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>'
+            : '<svg class="toast-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path></svg>';
+        
+        toast.innerHTML = `${icon}<span class="toast-message">${message}</span>`;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideInRight 0.3s ease reverse';
+            setTimeout(() => {
+                container.removeChild(toast);
+            }, 300);
+        }, 4000);
+    }
+</script>
+

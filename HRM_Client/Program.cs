@@ -22,15 +22,24 @@ var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localho
 builder.Services.AddHttpClient<AuthService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
+    client.Timeout = TimeSpan.FromMinutes(10); // Increase timeout for long operations
 });
 
 builder.Services.AddHttpClient<ApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
+    client.Timeout = TimeSpan.FromMinutes(10); // Increase timeout for long operations
 });
 
 builder.Services.AddScoped<PolicyService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<SalaryScaleService>();
+builder.Services.AddScoped<DepartmentService>();
+builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<ManagerService>();
+builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<PerformanceEvaluationService>();
 
 var app = builder.Build();
 

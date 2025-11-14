@@ -12,15 +12,22 @@
     var employeeUsers = allUsers.Where(u => u.Role == "Employee").ToList();
 }
 
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
 <div class="content-header">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h1 class="content-title">User Management</h1>
             <p class="content-subtitle">Manage all users in the system</p>
         </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <button onclick="openCreateUserModal()" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                Create New User
+            </button>
         <div style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;">
             <span style="font-size: 14px; color: #57606a;">Total Users:</span>
             <span style="font-size: 20px; font-weight: 500; color: #24292f;">@Model?.Count</span>
+            </div>
         </div>
     </div>
 </div>
@@ -36,6 +43,7 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
+        margin-bottom: 16px;
     }
 
     .role-section-header {
@@ -258,6 +266,17 @@
         border: 1px solid #cf222e;
         color: #cf222e;
     }
+
+    .error-message {
+        font-size: 13px;
+        color: #cf222e;
+        margin-top: 4px;
+        display: none;
+    }
+
+    .error-message.show {
+        display: block;
+    }
 </style>
 
 <div class="users-container">
@@ -265,10 +284,14 @@
     @if (adminUsers.Any())
     {
         <div class="role-section">
-            <div class="role-section-header">
+            <div class="collapsible-header" onclick="toggleSection(this)">
+                <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
                 <h2 class="role-section-title">Admin</h2>
             </div>
             
+            <div class="collapsible-content">
             <div class="user-section">
                 <table class="user-table">
                     <thead>
@@ -289,7 +312,7 @@
                                     <span class="user-name">@user.FullName</span>
                                 </td>
                                 <td>
-                                    <span class="level-badge">@user.Level</span>
+                                    <span class="level-badge level-@user.Level">@user.Level</span>
                                 </td>
                                 <td>
                                     @if (!string.IsNullOrEmpty(user.DepartmentName))
@@ -316,6 +339,7 @@
                     </tbody>
                 </table>
             </div>
+            </div>
         </div>
     }
 
@@ -326,19 +350,29 @@
         var inactiveManagers = managerUsers.Where(u => !u.IsActive).ToList();
         
         <div class="role-section">
-            <div class="role-section-header">
+            <div class="collapsible-header" onclick="toggleSection(this)">
+                <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
                 <h2 class="role-section-title">Managers</h2>
             </div>
+            
+            <div class="collapsible-content">
             
             @if (activeManagers.Any())
             {
                 <div class="user-section">
-                    <div class="section-header">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                         <div class="section-title">
                             <span>Active</span>
                             <span class="section-count">@activeManagers.Count</span>
                         </div>
                     </div>
+                    
+                    <div class="collapsible-content">
                     
                     <table class="user-table">
                         <thead>
@@ -360,7 +394,7 @@
                                         <span class="user-name">@user.FullName</span>
                                     </td>
                                     <td>
-                                        <span class="level-badge">@user.Level</span>
+                                        <span class="level-badge level-@user.Level">@user.Level</span>
                                     </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(user.DepartmentName))
@@ -385,7 +419,7 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn-action" onclick="resetPassword(@user.Id)">Reset Password</button>
-                                            <button class="btn-action danger" onclick="banUser(@user.Id)">Ban</button>
+                                            <button class="btn-action danger" onclick="banManagerUser(@user.Id, '@user.ManagedDepartmentName')">Ban</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -393,17 +427,23 @@
                         </tbody>
                     </table>
                 </div>
+                </div>
             }
             
             @if (inactiveManagers.Any())
             {
-                <div class="user-section">
-                    <div class="section-header">
+                <div class="user-section" style="margin-top: 16px;">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                         <div class="section-title">
                             <span>Banned</span>
                             <span class="section-count">@inactiveManagers.Count</span>
                         </div>
                     </div>
+                    
+                    <div class="collapsible-content">
                     
                     <table class="user-table">
                         <thead>
@@ -425,7 +465,7 @@
                                         <span class="user-name">@user.FullName</span>
                                     </td>
                                     <td>
-                                        <span class="level-badge">@user.Level</span>
+                                        <span class="level-badge level-@user.Level">@user.Level</span>
                                     </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(user.DepartmentName))
@@ -456,8 +496,10 @@
                             }
                         </tbody>
                     </table>
+                    </div>
                 </div>
             }
+            </div>
         </div>
     }
 
@@ -468,19 +510,29 @@
         var inactiveEmployees = employeeUsers.Where(u => !u.IsActive).ToList();
         
         <div class="role-section">
-            <div class="role-section-header">
+            <div class="collapsible-header" onclick="toggleSection(this)">
+                <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
                 <h2 class="role-section-title">Employees</h2>
             </div>
+            
+            <div class="collapsible-content">
             
             @if (activeEmployees.Any())
             {
                 <div class="user-section">
-                    <div class="section-header">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                         <div class="section-title">
                             <span>Active</span>
                             <span class="section-count">@activeEmployees.Count</span>
                         </div>
                     </div>
+                    
+                    <div class="collapsible-content">
                     
                     <table class="user-table">
                         <thead>
@@ -501,7 +553,7 @@
                                         <span class="user-name">@user.FullName</span>
                                     </td>
                                     <td>
-                                        <span class="level-badge">@user.Level</span>
+                                        <span class="level-badge level-@user.Level">@user.Level</span>
                                     </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(user.DepartmentName))
@@ -524,17 +576,23 @@
                         </tbody>
                     </table>
                 </div>
+                </div>
             }
             
             @if (inactiveEmployees.Any())
             {
-                <div class="user-section">
-                    <div class="section-header">
+                <div class="user-section" style="margin-top: 16px;">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <svg class="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                         <div class="section-title">
                             <span>Banned</span>
                             <span class="section-count">@inactiveEmployees.Count</span>
                         </div>
                     </div>
+                    
+                    <div class="collapsible-content">
                     
                     <table class="user-table">
                         <thead>
@@ -555,7 +613,7 @@
                                         <span class="user-name">@user.FullName</span>
                                     </td>
                                     <td>
-                                        <span class="level-badge">@user.Level</span>
+                                        <span class="level-badge level-@user.Level">@user.Level</span>
                                     </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(user.DepartmentName))
@@ -576,34 +634,600 @@
                             }
                         </tbody>
                     </table>
+                    </div>
                 </div>
             }
+            </div>
         </div>
     }
 </div>
 
+<!-- Modal Overlay -->
+<div id="confirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(27, 31, 36, 0.4); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background-color: #ffffff; border-radius: 12px; max-width: 400px; width: 90%; box-shadow: 0 8px 24px rgba(27, 31, 36, 0.2);">
+        <!-- Modal Header -->
+        <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid #d0d7de;">
+            <h3 id="modalTitle" style="margin: 0; font-size: 18px; font-weight: 500; color: #24292f;"></h3>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 24px;">
+            <p id="modalMessage" style="margin: 0; font-size: 14px; color: #57606a; line-height: 1.6;"></p>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding: 16px 24px; border-top: 1px solid #d0d7de; display: flex; gap: 8px; justify-content: flex-end;">
+            <button onclick="closeModal()" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #d0d7de; border-radius: 6px; background-color: #ffffff; color: #24292f; cursor: pointer; transition: background-color 0.2s;">
+                Cancel
+            </button>
+            <button id="confirmButton" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #cf222e; border-radius: 6px; background-color: #cf222e; color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" style="display: none; position: fixed; top: 24px; right: 24px; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px 20px; box-shadow: 0 4px 12px rgba(27, 31, 36, 0.15); z-index: 1001; min-width: 300px;">
+    <div style="display: flex; align-items: start; gap: 12px;">
+        <div id="toastIcon" style="flex-shrink: 0; width: 20px; height: 20px;"></div>
+        <div style="flex: 1;">
+            <div id="toastTitle" style="font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 4px;"></div>
+            <div id="toastMessage" style="font-size: 13px; color: #57606a;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div id="createUserModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(27, 31, 36, 0.4); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background-color: #ffffff; border-radius: 12px; max-width: 600px; width: 90%; box-shadow: 0 8px 24px rgba(27, 31, 36, 0.2); max-height: 90vh; overflow-y: auto;">
+        <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid #d0d7de;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 500; color: #24292f;">Create New User</h3>
+        </div>
+        
+        <div style="padding: 24px;">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 8px;">
+                    First Name <span style="color: #cf222e;">*</span>
+                </label>
+                <input type="text" id="firstName" placeholder="Enter first name" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+                <div id="firstNameError" class="error-message"></div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 8px;">
+                    Middle Name <span style="color: #cf222e;">*</span>
+                </label>
+                <input type="text" id="middleName" placeholder="Enter middle name (e.g., Van Hung)" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+                <div id="middleNameError" class="error-message"></div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 8px;">
+                    Address <span style="color: #cf222e;">*</span>
+                </label>
+                <textarea id="address" placeholder="Enter address" rows="3" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; resize: vertical;"></textarea>
+                <div id="addressError" class="error-message"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 8px;">
+                        Role <span style="color: #cf222e;">*</span>
+                    </label>
+                    <select id="role" onchange="handleRoleChange()" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+                        <option value="">Select role</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Employee">Employee</option>
+                    </select>
+                    <div id="roleError" class="error-message"></div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 8px;">
+                        Level <span style="color: #cf222e;">*</span>
+                    </label>
+                    <select id="level" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                    </select>
+                    <div id="levelError" class="error-message"></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 8px;">
+                    Department
+                </label>
+                <select id="department" style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;">
+                    <option value="">No department</option>
+                    @if (ViewBag.Departments != null)
+                    {
+                        foreach (var dept in (List<HRM_Client.Models.DepartmentResponse>)ViewBag.Departments)
+                        {
+                            <option value="@dept.Id">@dept.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div style="background-color: #ddf4ff; border: 1px solid #0969da; border-radius: 6px; padding: 12px; display: flex; gap: 8px;">
+                <svg style="flex-shrink: 0; color: #0969da;" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
+                </svg>
+                <span style="font-size: 13px; color: #0969da;">Username and password will be automatically generated and displayed after creation.</span>
+            </div>
+        </div>
+        
+        <div style="padding: 16px 24px; border-top: 1px solid #d0d7de; display: flex; gap: 8px; justify-content: flex-end;">
+            <button onclick="closeCreateUserModal()" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #d0d7de; border-radius: 6px; background-color: #ffffff; color: #24292f; cursor: pointer; transition: background-color 0.2s;">
+                Cancel
+            </button>
+            <button onclick="createUser()" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                Create User
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- User Created Modal (shows username & password) -->
+<div id="userCreatedModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(27, 31, 36, 0.4); z-index: 1001; align-items: center; justify-content: center;">
+    <div style="background-color: #ffffff; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 8px 24px rgba(27, 31, 36, 0.2);">
+        <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid #d0d7de;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 500; color: #24292f;">User Created Successfully</h3>
+        </div>
+        
+        <div style="padding: 24px;">
+            <p style="margin: 0 0 16px 0; font-size: 14px; color: #57606a; line-height: 1.6;">
+                New user has been created. Please save these credentials:
+            </p>
+            
+            <div style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #57606a; margin-bottom: 4px;">Full Name</label>
+                    <div id="createdFullName" style="font-size: 14px; font-weight: 500; color: #24292f;"></div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #57606a; margin-bottom: 4px;">Role</label>
+                    <div id="createdRole" style="font-size: 14px; font-weight: 500; color: #24292f;"></div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #57606a; margin-bottom: 4px;">Username</label>
+                    <div id="createdUsername" style="font-size: 14px; font-weight: 500; color: #24292f; font-family: 'SF Mono', Monaco, 'Courier New', monospace;"></div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #57606a; margin-bottom: 4px;">Password</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div id="createdPassword" style="flex: 1; font-size: 14px; font-weight: 500; color: #24292f; font-family: 'SF Mono', Monaco, 'Courier New', monospace;"></div>
+                        <button onclick="copyCreatedPassword()" style="padding: 6px 12px; font-size: 13px; font-weight: 400; border: 1px solid #d0d7de; border-radius: 6px; background-color: #ffffff; color: #24292f; cursor: pointer;">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background-color: #fff8c5; border: 1px solid #d4af37; border-radius: 6px; padding: 12px; display: flex; gap: 8px;">
+                <svg style="flex-shrink: 0; color: #bf8700;" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
+                </svg>
+                <span style="font-size: 13px; color: #bf8700;">Make sure to save these credentials. They will not be shown again.</span>
+            </div>
+        </div>
+        
+        <div style="padding: 16px 24px; border-top: 1px solid #d0d7de; display: flex; gap: 8px; justify-content: flex-end;">
+            <button onclick="closeUserCreatedModal()" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #d0d7de; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer;">
+                Done
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Password Display Modal -->
+<div id="passwordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(27, 31, 36, 0.4); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background-color: #ffffff; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 8px 24px rgba(27, 31, 36, 0.2);">
+        <!-- Modal Header -->
+        <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid #d0d7de;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 500; color: #24292f;">Password Reset Successful</h3>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 24px;">
+            <p style="margin: 0 0 16px 0; font-size: 14px; color: #57606a; line-height: 1.6;">
+                Password has been reset successfully. Please save this information:
+            </p>
+            
+            <div style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #57606a; margin-bottom: 4px;">Username</label>
+                    <div id="resetUsername" style="font-size: 14px; font-weight: 500; color: #24292f; font-family: 'SF Mono', Monaco, 'Courier New', monospace;"></div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #57606a; margin-bottom: 4px;">New Password</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div id="resetPassword" style="flex: 1; font-size: 14px; font-weight: 500; color: #24292f; font-family: 'SF Mono', Monaco, 'Courier New', monospace;"></div>
+                        <button onclick="copyPassword()" style="padding: 6px 12px; font-size: 13px; font-weight: 400; border: 1px solid #d0d7de; border-radius: 6px; background-color: #ffffff; color: #24292f; cursor: pointer;">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background-color: #fff8c5; border: 1px solid #d4af37; border-radius: 6px; padding: 12px; display: flex; gap: 8px;">
+                <svg style="flex-shrink: 0; color: #bf8700;" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
+                </svg>
+                <span style="font-size: 13px; color: #bf8700;">Make sure to copy this password. It will not be shown again.</span>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding: 16px 24px; border-top: 1px solid #d0d7de; display: flex; gap: 8px; justify-content: flex-end;">
+            <button onclick="closePasswordModal()" style="padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #d0d7de; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer;">
+                Done
+            </button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        let currentAction = null;
+        let currentUserId = null;
+
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.collapse-icon');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        function showModal(title, message, confirmCallback, confirmStyle = 'danger') {
+            const modal = document.getElementById('confirmModal');
+            const confirmBtn = document.getElementById('confirmButton');
+            
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            
+            // Style confirm button
+            if (confirmStyle === 'danger') {
+                confirmBtn.style.backgroundColor = '#cf222e';
+                confirmBtn.style.borderColor = '#cf222e';
+                confirmBtn.style.color = '#ffffff';
+            } else {
+                confirmBtn.style.backgroundColor = '#0969da';
+                confirmBtn.style.borderColor = '#0969da';
+                confirmBtn.style.color = '#ffffff';
+            }
+            
+            confirmBtn.onclick = confirmCallback;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentAction = null;
+            currentUserId = null;
+        }
+
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            
+            // Set icon based on type
+            if (type === 'success') {
+                icon.innerHTML = '<svg style="color: #1a7f37;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>';
+            } else {
+                icon.innerHTML = '<svg style="color: #cf222e;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path></svg>';
+            }
+            
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
         function resetPassword(userId) {
-            if (confirm('Are you sure you want to reset password for this user?')) {
-                // TODO: Implement reset password API call
-                console.log('Reset password for user:', userId);
+            showModal(
+                'Reset Password',
+                'Are you sure you want to reset password for this user? A new password will be generated and displayed.',
+                async () => {
+                    closeModal();
+                    try {
+                        const response = await fetch('@Url.Action("ResetPassword", "User")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userId: userId
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showPasswordModal(result.username, result.newPassword);
+                        } else {
+                            showToast('Error', result.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showToast('Error', 'An error occurred while resetting password', 'error');
+                    }
+                },
+                'primary'
+            );
+        }
+
+        function banManagerUser(userId, managedDepartmentName) {
+            // If user manages a department, redirect to departments page
+            if (managedDepartmentName && managedDepartmentName !== '') {
+                showToast('Error', `This user manages ${managedDepartmentName}. Please assign a new manager first.`, 'error');
+                setTimeout(() => {
+                    window.location.href = '@Url.Action("Index", "Department")';
+                }, 2500);
+            } else {
+                banUser(userId);
             }
         }
 
-        function banUser(userId) {
-            if (confirm('Are you sure you want to ban this user?')) {
-                // TODO: Implement ban user API call
-                console.log('Ban user:', userId);
-            }
+        function banUser(userId, managedDepartmentId = null) {
+            showModal(
+                'Ban User',
+                'Are you sure you want to ban this user? They will not be able to login to the system.',
+                async () => {
+                    closeModal();
+                    
+                    try {
+                        const response = await fetch('@Url.Action("Ban", "User")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userId: userId,
+                                isBanned: true
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showToast('Success', result.message, 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast('Error', result.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showToast('Error', 'An error occurred while banning the user', 'error');
+                    }
+                },
+                'danger'
+            );
         }
 
         function unbanUser(userId) {
-            if (confirm('Are you sure you want to unban this user?')) {
-                // TODO: Implement unban user API call
-                console.log('Unban user:', userId);
+            showModal(
+                'Unban User',
+                'Are you sure you want to unban this user? They will be able to login to the system again.',
+                async () => {
+                    closeModal();
+                    try {
+                        const response = await fetch('@Url.Action("Ban", "User")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userId: userId,
+                                isBanned: false
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showToast('Success', result.message, 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast('Error', result.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showToast('Error', 'An error occurred while unbanning the user', 'error');
+                    }
+                },
+                'primary'
+            );
+        }
+
+        function showPasswordModal(username, password) {
+            document.getElementById('resetUsername').textContent = username;
+            document.getElementById('resetPassword').textContent = password;
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            location.reload();
+        }
+
+        function copyPassword() {
+            const password = document.getElementById('resetPassword').textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                showToast('Copied', 'Password copied to clipboard', 'success');
+            }).catch(() => {
+                showToast('Error', 'Failed to copy password', 'error');
+            });
+        }
+
+        // Create User Modal Functions
+        function openCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'flex';
+            clearCreateUserForm();
+        }
+
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+            clearCreateUserForm();
+        }
+
+        function clearCreateUserForm() {
+            document.getElementById('firstName').value = '';
+            document.getElementById('middleName').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('role').value = '';
+            document.getElementById('level').value = '1';
+            document.getElementById('department').value = '';
+            clearErrors();
+        }
+
+        function clearErrors() {
+            const errors = document.querySelectorAll('.error-message');
+            errors.forEach(error => {
+                error.textContent = '';
+                error.classList.remove('show');
+            });
+        }
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + 'Error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
             }
         }
+
+        function handleRoleChange() {
+            const role = document.getElementById('role').value;
+            const levelSelect = document.getElementById('level');
+            
+            // Reset level to 1 when role changes
+            levelSelect.value = '1';
+        }
+
+        function validateCreateUserForm() {
+            clearErrors();
+            let isValid = true;
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const middleName = document.getElementById('middleName').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const role = document.getElementById('role').value;
+
+            if (!firstName || firstName.length < 2) {
+                showError('firstName', 'First name must be at least 2 characters');
+                isValid = false;
+            }
+
+            if (!middleName) {
+                showError('middleName', 'Middle name is required');
+                isValid = false;
+            }
+
+            if (!address || address.length < 5) {
+                showError('address', 'Address must be at least 5 characters');
+                isValid = false;
+            }
+
+            if (!role) {
+                showError('role', 'Please select a role');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        async function createUser() {
+            if (!validateCreateUserForm()) {
+                return;
+            }
+
+            const requestData = {
+                firstName: document.getElementById('firstName').value.trim(),
+                middleName: document.getElementById('middleName').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                role: document.getElementById('role').value,
+                level: parseInt(document.getElementById('level').value),
+                departmentId: document.getElementById('department').value ? parseInt(document.getElementById('department').value) : null
+            };
+
+            try {
+                const response = await fetch('@Url.Action("Register", "User")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeCreateUserModal();
+                    showUserCreatedModal(result);
+                } else {
+                    showToast('Error', result.message || 'Failed to create user', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error', 'An error occurred while creating user', 'error');
+            }
+        }
+
+        function showUserCreatedModal(result) {
+            document.getElementById('createdFullName').textContent = result.fullName;
+            document.getElementById('createdRole').textContent = result.role;
+            document.getElementById('createdUsername').textContent = result.username;
+            document.getElementById('createdPassword').textContent = result.password;
+            document.getElementById('userCreatedModal').style.display = 'flex';
+        }
+
+        function closeUserCreatedModal() {
+            document.getElementById('userCreatedModal').style.display = 'none';
+            location.reload();
+        }
+
+        function copyCreatedPassword() {
+            const password = document.getElementById('createdPassword').textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                showToast('Copied', 'Password copied to clipboard', 'success');
+            }).catch(() => {
+                showToast('Error', 'Failed to copy password', 'error');
+            });
+        }
+
+        // Close modal on overlay click
+        document.getElementById('confirmModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('passwordModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal();
+            }
+        });
+
+        document.getElementById('createUserModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateUserModal();
+            }
+        });
+
+        document.getElementById('userCreatedModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserCreatedModal();
+            }
+        });
     </script>
 }
 

@@ -34,11 +34,11 @@ namespace HRM_Client.Controllers
                 return View(request);
             }
 
-            var response = await _authService.LoginAsync(request);
+            var (response, errorMessage) = await _authService.LoginAsync(request);
 
             if (response == null)
             {
-                ViewBag.Error = "Invalid username or password";
+                ViewBag.Error = errorMessage ?? "Invalid username or password";
                 return View(request);
             }
 
