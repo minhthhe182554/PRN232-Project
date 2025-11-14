@@ -9,6 +9,7 @@ namespace HRM_Client.Models
         public bool IsActive { get; set; }
         public string? DepartmentName { get; set; }
         public string? ManagedDepartmentName { get; set; }
+        public string? TodayAttendanceStatus { get; set; }
     }
 }
 

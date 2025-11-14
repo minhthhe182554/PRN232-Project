@@ -1,78 +1,352 @@
+@model HRM_Client.Models.UserProfileDto
 @{
     ViewBag.Title = "My Profile";
     Layout = "_DashboardLayout";
 }
 
+<div class="content-header">
+    <h1 class="content-title">My Profile</h1>
+    <p class="content-subtitle">Manage your personal information</p>
+</div>
+
 <style>
-    .profile-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 60px 20px;
-        max-width: 400px;
+    .profile-content {
+        max-width: 800px;
         margin: 0 auto;
     }
 
+    .profile-card {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+
+    .avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #d0d7de;
+        margin-bottom: 24px;
+    }
+
     .profile-avatar {
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         background-color: #0969da;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #ffffff;
-        font-size: 48px;
+        font-size: 40px;
         font-weight: 500;
-        margin-bottom: 32px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        position: relative;
+        overflow: hidden;
     }
 
-    .profile-name {
+    .profile-avatar:hover {
+        opacity: 0.8;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        font-size: 12px;
+        padding: 4px;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .profile-avatar:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-info h2 {
         font-size: 24px;
         font-weight: 400;
+        color: #24292f;
+        margin: 0 0 4px 0;
+    }
+
+    .avatar-info .username {
+        font-size: 14px;
+        color: #57606a;
+        margin-bottom: 8px;
+    }
+
+    .avatar-info .role-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #ddf4ff;
+        border: 1px solid #54aeff;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #0969da;
+        font-weight: 500;
+    }
+
+    .form-section {
+        margin-bottom: 24px;
+    }
+
+    .form-section-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
         color: #24292f;
         margin-bottom: 8px;
     }
 
-    .profile-username {
-        font-size: 16px;
-        color: #57606a;
-        margin-bottom: 32px;
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+        line-height: 20px;
+        color: #24292f;
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .btn-logout-profile {
-        padding: 12px 32px;
+    .form-input:focus {
+        outline: none;
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+    }
+
+    .form-input:disabled {
+        background-color: #f6f8fa;
+        color: #57606a;
+        cursor: not-allowed;
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .error-message {
+        font-size: 13px;
+        color: #cf222e;
+        margin-top: 4px;
+        display: none;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding-top: 16px;
+        border-top: 1px solid #d0d7de;
+    }
+
+    .btn-save {
+        padding: 12px 24px;
         font-size: 14px;
         font-weight: 500;
         color: #ffffff;
-        background-color: #cf222e;
+        background-color: #0969da;
         border: none;
         border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.2s;
     }
 
-    .btn-logout-profile:hover {
-        background-color: #a40e26;
+    .btn-save:hover {
+        background-color: #0860ca;
+    }
+
+    .btn-cancel {
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background-color: #f3f4f6;
+        border-color: #c5cbd3;
     }
 </style>
 
-<div class="profile-container">
-    <div class="profile-avatar">
-        @if (!string.IsNullOrEmpty(ViewBag.FullName as string))
+<div class="profile-content">
+    <div class="profile-card">
+        <div class="avatar-section">
+            <div class="profile-avatar" onclick="showAvatarNotification()">
+                @if (Model != null && !string.IsNullOrEmpty(Model.FullName))
         {
-            @ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
+                    @Model.FullName.Substring(0, 1).ToUpper()
         }
         else
         {
-            @ViewBag.Username?.ToString().Substring(0, 1).ToUpper()
-        }
+                    <text>U</text>
+                }
+                <div class="avatar-overlay">Change Avatar</div>
+            </div>
+            <div class="avatar-info">
+                <h2>@Model?.FullName</h2>
+                <div class="username">@@@Model?.Username</div>
+                <span class="role-badge">@ViewBag.Role</span>
+            </div>
+        </div>
+
+        <form id="profileForm">
+            <div class="form-section">
+                <div class="form-section-title">Account Information</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" value="@Model?.Username" disabled />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="fullName" class="form-input" value="@Model?.FullName" />
+                    <span id="fullNameError" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <textarea id="address" class="form-input form-textarea">@Model?.Address</textarea>
+                    <span id="addressError" class="error-message"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="resetForm()">Cancel</button>
+                <button type="button" class="btn-save" onclick="saveProfile()">Save Changes</button>
+            </div>
+        </form>
     </div>
-    <div class="profile-name">@ViewBag.FullName</div>
-    <div class="profile-username">@@@ViewBag.Username</div>
-    
-    <form asp-controller="Auth" asp-action="Logout" method="post">
-        <button type="submit" class="btn-logout-profile">Sign Out</button>
-    </form>
 </div>
+
+<!-- Toast Notification -->
+<div id="toast" style="display: none; position: fixed; top: 24px; right: 24px; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px 20px; box-shadow: 0 4px 12px rgba(27, 31, 36, 0.15); z-index: 1001; min-width: 300px;">
+    <div style="display: flex; align-items: start; gap: 12px;">
+        <div id="toastIcon" style="flex-shrink: 0; width: 20px; height: 20px;"></div>
+        <div style="flex: 1;">
+            <div id="toastTitle" style="font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 4px;"></div>
+            <div id="toastMessage" style="font-size: 13px; color: #57606a;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const originalData = {
+        fullName: '@Model?.FullName',
+        address: '@Model?.Address'
+    };
+
+    function showToast(title, message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toastIcon');
+        
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMessage').textContent = message;
+        
+        if (type === 'success') {
+            icon.innerHTML = '<svg style="color: #1a7f37;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>';
+        } else {
+            icon.innerHTML = '<svg style="color: #cf222e;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path></svg>';
+        }
+        
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+
+    function showAvatarNotification() {
+        showToast('Coming Soon', 'Avatar upload feature will be implemented in a future update', 'error');
+    }
+
+    function resetForm() {
+        document.getElementById('fullName').value = originalData.fullName;
+        document.getElementById('address').value = originalData.address;
+        document.getElementById('fullNameError').style.display = 'none';
+        document.getElementById('addressError').style.display = 'none';
+    }
+
+    async function saveProfile() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const address = document.getElementById('address').value.trim();
+        
+        const fullNameError = document.getElementById('fullNameError');
+        const addressError = document.getElementById('addressError');
+        
+        fullNameError.style.display = 'none';
+        addressError.style.display = 'none';
+
+        // Validation
+        let hasError = false;
+        
+        if (fullName.length < 2) {
+            fullNameError.textContent = 'Full name must be at least 2 characters';
+            fullNameError.style.display = 'block';
+            hasError = true;
+        }
+
+        if (address.length < 5) {
+            addressError.textContent = 'Address must be at least 5 characters';
+            addressError.style.display = 'block';
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        try {
+            const response = await fetch('@Url.Action("UpdateProfile", "Profile")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fullName: fullName,
+                    address: address
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showToast('Success', 'Profile updated successfully', 'success');
+                originalData.fullName = fullName;
+                originalData.address = address;
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Error', result.message || 'Failed to update profile', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while updating profile', 'error');
+        }
+    }
+</script>
 

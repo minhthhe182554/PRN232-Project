@@ -19,12 +19,19 @@ namespace HRM_API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var response = await _authService.LoginAsync(request);
-            
-            if (response == null)
-                return Unauthorized(new { message = "Wrong Username or Password" });
+            try
+            {
+                var response = await _authService.LoginAsync(request);
+                
+                if (response == null)
+                    return Unauthorized(new { message = "Wrong Username or Password" });
 
-            return Ok(response);
+                return Ok(response);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Admin")]

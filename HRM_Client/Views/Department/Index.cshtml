@@ -1,0 +1,689 @@
+@model List<HRM_Client.Models.DepartmentResponse>
+@{
+    ViewBag.Title = "Department Management";
+    Layout = "_DashboardLayout";
+}
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<div class="content-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div>
+        <h1 class="content-title">Department Management</h1>
+        <p class="content-subtitle">Manage departments and assignments</p>
+        </div>
+        <button type="button" class="btn-action primary" onclick="showCreateDepartmentModal()">
+            Create Department
+        </button>
+    </div>
+</div>
+
+<style>
+    .departments-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .department-card {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 12px;
+        padding: 24px;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .department-card:hover {
+        box-shadow: 0 3px 12px rgba(140,149,159,0.15);
+    }
+
+    .department-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .department-info {
+        flex: 1;
+    }
+
+    .department-name {
+        font-size: 18px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .department-stats {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #57606a;
+    }
+
+    .stat-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .department-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .edit-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .edit-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .edit-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .edit-input-wrapper {
+        display: flex;
+        gap: 8px;
+    }
+
+    .edit-input {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 14px;
+        line-height: 20px;
+        color: #24292f;
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .edit-input:focus {
+        outline: none;
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+    }
+
+    .edit-select {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 14px;
+        line-height: 20px;
+        color: #24292f;
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    .edit-select:focus {
+        outline: none;
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action.primary {
+        color: #ffffff;
+        background-color: #0969da;
+    }
+
+    .btn-action.primary:hover {
+        background-color: #0860ca;
+    }
+
+    .btn-action.secondary {
+        color: #24292f;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+    }
+
+    .btn-action.secondary:hover {
+        background-color: #f3f4f6;
+        border-color: #c5cbd3;
+    }
+
+    .btn-action.danger {
+        color: #ffffff;
+        background-color: #cf222e;
+    }
+
+    .btn-action.danger:hover {
+        background-color: #b81c28;
+    }
+
+    .btn-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .error-message {
+        font-size: 13px;
+        color: #cf222e;
+        margin-top: 4px;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: slideDown 0.2s ease;
+    }
+
+    .modal-header {
+        font-size: 18px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 12px;
+    }
+
+    .modal-body {
+        font-size: 14px;
+        color: #57606a;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .toast {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-width: 320px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        animation: slideInRight 0.2s ease;
+    }
+
+    .toast.success {
+        border-left: 4px solid #1a7f37;
+    }
+
+    .toast.error {
+        border-left: 4px solid #cf222e;
+    }
+
+    .toast-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .toast-content {
+        flex: 1;
+    }
+
+    .toast-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 4px;
+    }
+
+    .toast-message {
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #57606a;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .empty-state-message {
+        font-size: 14px;
+        color: #57606a;
+    }
+</style>
+
+<div class="departments-container">
+    @if (Model == null || !Model.Any())
+    {
+        <div class="department-card">
+            <div class="empty-state">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                </svg>
+                <div class="empty-state-title">No departments found</div>
+                <div class="empty-state-message">There are no departments in the system</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var dept in Model)
+        {
+            <div class="department-card" id="dept-card-@dept.Id">
+                <div class="department-header">
+                    <div class="department-info">
+                        <div class="department-name" id="dept-name-display-@dept.Id">@dept.Name</div>
+                        <div class="department-stats">
+                            <div class="stat-item">
+                                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path>
+                                </svg>
+                                <span>@dept.EmployeeCount employees</span>
+                            </div>
+                            <div class="stat-item">
+                                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span>Manager: @(dept.ManagerName ?? "N/A")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="department-actions">
+                        <a href="@Url.Action("ChangeManager", "Department", new { id = dept.Id })" class="btn-action primary">
+                            Change Manager
+                        </a>
+                        <button type="button" class="btn-action danger" onclick="deleteDepartment(@dept.Id, '@dept.Name', @dept.EmployeeCount)"
+                                @(dept.EmployeeCount > 0 ? "disabled" : "")>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="edit-section">
+                    <div class="edit-group">
+                        <label class="edit-label" for="dept-name-@dept.Id">Department Name</label>
+                        <div class="edit-input-wrapper">
+                            <input type="text" 
+                                   id="dept-name-@dept.Id" 
+                                   class="edit-input" 
+                                   value="@dept.Name" 
+                                   data-original="@dept.Name" />
+                            <button type="button" class="btn-action primary" onclick="updateDepartmentName(@dept.Id)">Save</button>
+                        </div>
+                        <span id="dept-name-error-@dept.Id" class="error-message" style="display: none;"></span>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-header" id="modalTitle"></div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-action secondary" onclick="closeModal()">Cancel</button>
+            <button type="button" class="btn-action" id="modalConfirmBtn" onclick=""></button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="createModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">Create New Department</div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="deptName" style="display: block; margin-bottom: 8px; font-weight: 500;">Department Name</label>
+                <input type="text" id="deptName" class="form-control edit-input" placeholder="Enter department name" />
+                <span id="deptNameError" class="error-message" style="display: none;"></span>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Select Employee to Promote as Manager</label>
+                <input type="text" id="employeeSearch" class="form-control edit-input" placeholder="Search by username" style="margin-bottom: 12px;" />
+                <button type="button" class="btn-action secondary" onclick="searchEmployeesForDept()" style="margin-bottom: 12px;">Search</button>
+                <div id="employeeResults" style="max-height: 300px; overflow-y: auto;"></div>
+                <span id="managerError" class="error-message" style="display: none;"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-action secondary" onclick="closeCreateModal()">Cancel</button>
+            <button type="button" class="btn-action primary" onclick="createDepartment()">Create</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    let selectedManagerId = null;
+
+    function showCreateDepartmentModal() {
+        document.getElementById('createModal').classList.add('active');
+        document.getElementById('deptName').value = '';
+        document.getElementById('employeeSearch').value = '';
+        document.getElementById('employeeResults').innerHTML = '';
+        selectedManagerId = null;
+        document.getElementById('deptNameError').style.display = 'none';
+        document.getElementById('managerError').style.display = 'none';
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createModal').classList.remove('active');
+    }
+
+    async function searchEmployeesForDept() {
+        const username = document.getElementById('employeeSearch').value.trim();
+        if (username.length < 2) {
+            showToast('Error', 'Enter at least 2 characters', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`@Url.Action("SearchEmployees", "Department")?username=${encodeURIComponent(username)}`);
+            const result = await response.json();
+
+            const resultsDiv = document.getElementById('employeeResults');
+            if (result.success && result.employees && result.employees.length > 0) {
+                resultsDiv.innerHTML = result.employees.map(emp => `
+                    <div class="employee-item" style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid #d0d7de; border-radius: 6px; margin-bottom: 8px; cursor: pointer;" onclick="selectManager(${emp.id}, '${emp.fullName}')">
+                        <div>
+                            <div style="font-weight: 500;">${emp.fullName}</div>
+                            <div style="font-size: 13px; color: #57606a;">Username: ${emp.username} | Level: ${emp.level}</div>
+                        </div>
+                        <button type="button" class="btn-action primary" onclick="event.stopPropagation(); selectManager(${emp.id}, '${emp.fullName}')">Select</button>
+                    </div>
+                `).join('');
+            } else {
+                resultsDiv.innerHTML = '<div style="text-align: center; padding: 24px; color: #57606a;">No employees found</div>';
+            }
+        } catch (error) {
+            showToast('Error', 'Failed to search employees', 'error');
+        }
+    }
+
+    function selectManager(employeeId, employeeName) {
+        selectedManagerId = employeeId;
+        document.getElementById('employeeResults').innerHTML = `
+            <div style="padding: 12px; background: #ddf4ff; border: 1px solid #54aeff; border-radius: 6px;">
+                Selected: <strong>${employeeName}</strong>
+            </div>
+        `;
+    }
+
+    async function createDepartment() {
+        const name = document.getElementById('deptName').value.trim();
+        const deptNameError = document.getElementById('deptNameError');
+        const managerError = document.getElementById('managerError');
+        
+        deptNameError.style.display = 'none';
+        managerError.style.display = 'none';
+
+        if (name.length < 2) {
+            deptNameError.textContent = 'Department name must be at least 2 characters';
+            deptNameError.style.display = 'block';
+            return;
+        }
+
+        if (!selectedManagerId) {
+            managerError.textContent = 'Please select a manager';
+            managerError.style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('@Url.Action("Create", "Department")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    managerId: selectedManagerId
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showToast('Success', result.message, 'success');
+                closeCreateModal();
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Error', result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Error', 'Failed to create department', 'error');
+        }
+    }
+
+    function showModal(title, message, onConfirm, btnVariant = 'primary') {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMessage').textContent = message;
+        
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        confirmBtn.className = `btn-action ${btnVariant}`;
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.onclick = onConfirm;
+        
+        document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    function showToast(title, message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' 
+            ? '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+            : '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#cf222e" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+        
+        toast.innerHTML = `
+            ${icon}
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+        `;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideInRight 0.2s ease reverse';
+            setTimeout(() => toast.remove(), 200);
+        }, 4000);
+    }
+
+    async function updateDepartmentName(deptId) {
+        const input = document.getElementById(`dept-name-${deptId}`);
+        const errorSpan = document.getElementById(`dept-name-error-${deptId}`);
+        const newName = input.value.trim();
+        
+        errorSpan.style.display = 'none';
+        
+        if (newName.length < 2) {
+            errorSpan.textContent = 'Department name must be at least 2 characters';
+            errorSpan.style.display = 'block';
+            return;
+        }
+        
+        if (newName.length > 100) {
+            errorSpan.textContent = 'Department name must not exceed 100 characters';
+            errorSpan.style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('@Url.Action("UpdateName", "Department")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: deptId,
+                    name: newName
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById(`dept-name-display-${deptId}`).textContent = newName;
+                input.dataset.original = newName;
+                showToast('Success', result.message, 'success');
+            } else {
+                errorSpan.textContent = result.message;
+                errorSpan.style.display = 'block';
+                showToast('Error', result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while updating department name', 'error');
+        }
+    }
+
+    function deleteDepartment(deptId, deptName, employeeCount) {
+        if (employeeCount > 0) {
+            showToast('Error', 'Cannot delete department with employees', 'error');
+            return;
+        }
+
+        showModal(
+            'Delete Department',
+            `Are you sure you want to delete "${deptName}"? This action cannot be undone.`,
+            async () => {
+                closeModal();
+                try {
+                    const response = await fetch('@Url.Action("Delete", "Department")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(deptId)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const card = document.getElementById(`dept-card-${deptId}`);
+                        card.style.animation = 'fadeOut 0.2s ease';
+                        setTimeout(() => card.remove(), 200);
+                        showToast('Success', result.message, 'success');
+                    } else {
+                        showToast('Error', result.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Error', 'An error occurred while deleting department', 'error');
+                }
+            },
+            'danger'
+        );
+    }
+</script>
+

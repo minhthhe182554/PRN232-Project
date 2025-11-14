@@ -1,9 +1,17 @@
 @{
     ViewBag.Title = "Dashboard";
     Layout = "_DashboardLayout";
+    
+    var now = DateTime.Now;
+    var dayOfWeek = now.ToString("dddd", new System.Globalization.CultureInfo("en-US"));
+    var dateStr = now.ToString("MMMM dd, yyyy", new System.Globalization.CultureInfo("en-US"));
+    
+    var stats = ViewBag.DashboardStats as HRM_Client.Models.DashboardStatsResponse;
 }
 
 <div class="content-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        <div>
     <h1 class="content-title">Welcome back, @ViewBag.FullName</h1>
     @if (ViewBag.Role != "Admin" && !string.IsNullOrEmpty(ViewBag.DepartmentName as string))
     {
@@ -13,6 +21,12 @@
             <span style="font-size: 14px; font-weight: 500; color: #24292f;">Level @ViewBag.Level</span>
         </div>
     }
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 14px; font-weight: 500; color: #24292f;">@dayOfWeek</div>
+            <div style="font-size: 13px; color: #57606a; margin-top: 4px;">@dateStr</div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -53,6 +67,151 @@
         color: #57606a;
         margin-top: 8px;
     }
+
+    .stats-section {
+        margin-top: 32px;
+    }
+
+    .stats-header {
+        font-size: 18px;
+        font-weight: 400;
+        color: #24292f;
+        margin-bottom: 16px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-card {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 24px;
+    }
+
+    .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .stat-card-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .stat-period-toggle {
+        display: flex;
+        gap: 4px;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 2px;
+    }
+
+    .stat-period-btn {
+        padding: 4px 12px;
+        font-size: 13px;
+        border: none;
+        background: none;
+        color: #57606a;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .stat-period-btn.active {
+        background-color: #ffffff;
+        color: #24292f;
+        font-weight: 500;
+        box-shadow: 0 1px 2px rgba(27,31,36,0.12);
+    }
+
+    .stat-items {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-item-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .stat-dot.pending { background-color: #bf8700; }
+    .stat-dot.approved { background-color: #1a7f37; }
+    .stat-dot.rejected { background-color: #cf222e; }
+    .stat-dot.present { background-color: #1a7f37; }
+    .stat-dot.absent { background-color: #cf222e; }
+    .stat-dot.late { background-color: #bf8700; }
+    .stat-dot.onleave { background-color: #0969da; }
+
+    .stat-label {
+        font-size: 14px;
+        color: #24292f;
+    }
+
+    .stat-item-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-count {
+        font-size: 20px;
+        font-weight: 400;
+        color: #24292f;
+        min-width: 40px;
+        text-align: right;
+    }
+
+    .stat-percentage {
+        font-size: 13px;
+        color: #57606a;
+        min-width: 50px;
+        text-align: right;
+    }
+
+    .stat-total {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #d0d7de;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-total-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .stat-total-value {
+        font-size: 20px;
+        font-weight: 500;
+        color: #24292f;
+    }
 </style>
 
 <div class="dashboard-grid">
@@ -60,60 +219,1162 @@
     {
         <div class="dashboard-card">
             <div class="card-title">Total Employees</div>
-            <div class="card-value">-</div>
+            <div class="card-value">@ViewBag.TotalEmployees</div>
             <div class="card-description">Active users in system</div>
         </div>
         <div class="dashboard-card">
             <div class="card-title">Departments</div>
-            <div class="card-value">-</div>
+            <div class="card-value">@ViewBag.TotalDepartments</div>
             <div class="card-description">Total departments</div>
         </div>
         <div class="dashboard-card">
-            <div class="card-title">Pending Requests</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Awaiting approval</div>
+            <div class="card-title">Requests Today</div>
+            <div class="card-value">@(stats?.RequestStats.Today.Total ?? 0)</div>
+            <div class="card-description">
+                @if (stats != null && stats.RequestStats.Today.Total > 0)
+                {
+                    <span>@stats.RequestStats.Today.Pending pending</span>
+                }
+                else
+                {
+                    <span>No requests today</span>
+                }
+            </div>
         </div>
         <div class="dashboard-card">
-            <div class="card-title">Today's Attendance</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Checked in today</div>
+            <div class="card-title">Attendance Today</div>
+            <div class="card-value">@(stats?.AttendanceStats.Today.Present ?? 0)</div>
+            <div class="card-description">
+                @if (stats != null && stats.AttendanceStats.Today.Total > 0)
+                {
+                    <span>@stats.AttendanceStats.Today.PresentPercentage% present</span>
+                }
+                else
+                {
+                    <span>No attendance data</span>
+                }
+            </div>
         </div>
     }
     else if (ViewBag.Role == "Manager")
     {
+        var managerStats = ViewBag.ManagerStats as HRM_Client.Models.ManagerDashboardStatsResponse;
+        
+        <div class="dashboard-card">
+            <div class="card-title">Check-In Status</div>
+            @if (managerStats?.CheckInStatus.HasCheckedInToday == true)
+            {
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="card-value" style="font-size: 18px; color: @(managerStats.CheckInStatus.IsCheckInOnTime ? "#1a7f37" : "#bf8700");">✓ Checked In</div>
+                    @if (managerStats.CheckInStatus.IsCheckInOnTime)
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #dafbe1; border: 1px solid #1a7f37; border-radius: 6px; font-size: 12px; color: #1a7f37; font-weight: 500;">On-time</span>
+                    }
+                    else
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #fff8c5; border: 1px solid #bf8700; border-radius: 6px; font-size: 12px; color: #bf8700; font-weight: 500;">Late</span>
+                    }
+                </div>
+                <div class="card-description">@managerStats.CheckInStatus.CheckInTime?.ToString("hh:mm tt")</div>
+                @if (!string.IsNullOrEmpty(managerStats.CheckInStatus.CheckInMessage))
+                {
+                    <div class="card-description" style="margin-top: 4px; font-size: 13px; color: #57606a;">@managerStats.CheckInStatus.CheckInMessage</div>
+                }
+            }
+            else
+            {
+                <button onclick="checkIn()" style="margin-top: 8px; padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; width: 100%;">
+                    Check In Now
+                </button>
+                <div class="card-description">Click to check in for today</div>
+            }
+        </div>
+        
+        <div class="dashboard-card">
+            <div class="card-title">Check-Out Status</div>
+            @if (managerStats?.CheckInStatus.HasCheckedOutToday == true)
+            {
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="card-value" style="font-size: 18px; color: @(managerStats.CheckInStatus.IsCheckOutOnTime ? "#1a7f37" : "#bf8700");">✓ Checked Out</div>
+                    @if (managerStats.CheckInStatus.IsCheckOutOnTime)
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #dafbe1; border: 1px solid #1a7f37; border-radius: 6px; font-size: 12px; color: #1a7f37; font-weight: 500;">On-time</span>
+                    }
+                    else
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #fff8c5; border: 1px solid #bf8700; border-radius: 6px; font-size: 12px; color: #bf8700; font-weight: 500;">Early</span>
+                    }
+                </div>
+                <div class="card-description">@managerStats.CheckInStatus.CheckOutTime?.ToString("hh:mm tt")</div>
+                @if (!string.IsNullOrEmpty(managerStats.CheckInStatus.CheckOutMessage))
+                {
+                    <div class="card-description" style="margin-top: 4px; font-size: 13px; color: #57606a;">@managerStats.CheckInStatus.CheckOutMessage</div>
+                }
+            }
+            else if (managerStats?.CheckInStatus.HasCheckedInToday == true)
+            {
+                <button onclick="checkOut()" style="margin-top: 8px; padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; width: 100%;">
+                    Check Out Now
+                </button>
+                <div class="card-description">Click to check out for today</div>
+            }
+            else
+            {
+                <div class="card-description" style="color: #57606a;">Please check in first</div>
+            }
+        </div>
         <div class="dashboard-card">
             <div class="card-title">Team Members</div>
-            <div class="card-value">-</div>
-            <div class="card-description">In your department</div>
+            <div class="card-value">@(managerStats?.TeamStats.TotalMembers ?? 0)</div>
+            <div class="card-description">Total members in department</div>
         </div>
         <div class="dashboard-card">
-            <div class="card-title">Pending Requests</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Awaiting your approval</div>
+            <div class="card-title">Requests Today</div>
+            <div class="card-value">@(managerStats?.RequestStats.Today.Total ?? 0)</div>
+            <div class="card-description">
+                @if (managerStats != null && managerStats.RequestStats.Today.Total > 0)
+                {
+                    <span>@managerStats.RequestStats.Today.Pending pending</span>
+                }
+                else
+                {
+                    <span>No requests today</span>
+                }
+            </div>
         </div>
         <div class="dashboard-card">
-            <div class="card-title">Today's Attendance</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Team checked in</div>
+            <div class="card-title">Attendance Today</div>
+            <div class="card-value">@(managerStats?.AttendanceStats.Today.Present ?? 0)</div>
+            <div class="card-description">
+                @if (managerStats != null && managerStats.AttendanceStats.Today.Total > 0)
+                {
+                    <span>@managerStats.AttendanceStats.Today.PresentPercentage% present</span>
+                }
+                else
+                {
+                    <span>No attendance data</span>
+                }
+            </div>
         </div>
     }
-    else
+    else if (ViewBag.Role == "Employee")
     {
+        var employeeStats = ViewBag.EmployeeStats as HRM_Client.Models.EmployeeDashboardStatsResponse;
+        
         <div class="dashboard-card">
-            <div class="card-title">My Attendance</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Days this month</div>
+            <div class="card-title">Check-In Status</div>
+            @if (employeeStats?.CheckInStatus.HasCheckedInToday == true)
+            {
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="card-value" style="font-size: 18px; color: @(employeeStats.CheckInStatus.IsCheckInOnTime ? "#1a7f37" : "#bf8700");">✓ Checked In</div>
+                    @if (employeeStats.CheckInStatus.IsCheckInOnTime)
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #dafbe1; border: 1px solid #1a7f37; border-radius: 6px; font-size: 12px; color: #1a7f37; font-weight: 500;">On-time</span>
+                    }
+                    else
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #fff8c5; border: 1px solid #bf8700; border-radius: 6px; font-size: 12px; color: #bf8700; font-weight: 500;">Late</span>
+                    }
+                </div>
+                <div class="card-description">@employeeStats.CheckInStatus.CheckInTime?.ToString("hh:mm tt")</div>
+                @if (!string.IsNullOrEmpty(employeeStats.CheckInStatus.CheckInMessage))
+                {
+                    <div class="card-description" style="margin-top: 4px; font-size: 13px; color: #57606a;">@employeeStats.CheckInStatus.CheckInMessage</div>
+                }
+            }
+            else
+            {
+                <button onclick="checkIn()" style="margin-top: 8px; padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; width: 100%;">
+                    Check In Now
+                </button>
+                <div class="card-description">Click to check in for today</div>
+            }
         </div>
+        
         <div class="dashboard-card">
-            <div class="card-title">Annual Leave</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Days remaining</div>
-        </div>
-        <div class="dashboard-card">
-            <div class="card-title">My Requests</div>
-            <div class="card-value">-</div>
-            <div class="card-description">Pending approval</div>
+            <div class="card-title">Check-Out Status</div>
+            @if (employeeStats?.CheckInStatus.HasCheckedOutToday == true)
+            {
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="card-value" style="font-size: 18px; color: @(employeeStats.CheckInStatus.IsCheckOutOnTime ? "#1a7f37" : "#bf8700");">✓ Checked Out</div>
+                    @if (employeeStats.CheckInStatus.IsCheckOutOnTime)
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #dafbe1; border: 1px solid #1a7f37; border-radius: 6px; font-size: 12px; color: #1a7f37; font-weight: 500;">On-time</span>
+                    }
+                    else
+                    {
+                        <span style="display: inline-flex; padding: 4px 8px; background-color: #fff8c5; border: 1px solid #bf8700; border-radius: 6px; font-size: 12px; color: #bf8700; font-weight: 500;">Early</span>
+                    }
+                </div>
+                <div class="card-description">@employeeStats.CheckInStatus.CheckOutTime?.ToString("hh:mm tt")</div>
+                @if (!string.IsNullOrEmpty(employeeStats.CheckInStatus.CheckOutMessage))
+                {
+                    <div class="card-description" style="margin-top: 4px; font-size: 13px; color: #57606a;">@employeeStats.CheckInStatus.CheckOutMessage</div>
+                }
+            }
+            else if (employeeStats?.CheckInStatus.HasCheckedInToday == true)
+            {
+                <button onclick="checkOut()" style="margin-top: 8px; padding: 8px 16px; font-size: 14px; font-weight: 400; border: 1px solid #0969da; border-radius: 6px; background-color: #0969da; color: #ffffff; cursor: pointer; width: 100%;">
+                    Check Out Now
+                </button>
+                <div class="card-description">Click to check out for today</div>
+            }
+            else
+            {
+                <div class="card-description" style="color: #57606a;">Please check in first</div>
+            }
         </div>
     }
 </div>
 
+@if (ViewBag.Role == "Admin" && stats != null)
+{
+    <div class="stats-section">
+        <h2 class="stats-header">Request Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-title">Requests</div>
+                    <div class="stat-period-toggle">
+                        <button class="stat-period-btn active" onclick="toggleRequestPeriod('today')">Today</button>
+                        <button class="stat-period-btn" onclick="toggleRequestPeriod('week')">This Week</button>
+                    </div>
+                </div>
+                <div id="request-today" class="stat-items">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot pending"></div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.RequestStats.Today.Pending</div>
+                            <div class="stat-percentage">@stats.RequestStats.Today.PendingPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot approved"></div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.RequestStats.Today.Approved</div>
+                            <div class="stat-percentage">@stats.RequestStats.Today.ApprovedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot rejected"></div>
+                            <div class="stat-label">Rejected</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.RequestStats.Today.Rejected</div>
+                            <div class="stat-percentage">@stats.RequestStats.Today.RejectedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Requests</div>
+                        <div class="stat-total-value">@stats.RequestStats.Today.Total</div>
+                    </div>
+                </div>
+                <div id="request-week" class="stat-items" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot pending"></div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.RequestStats.ThisWeek.Pending</div>
+                            <div class="stat-percentage">@stats.RequestStats.ThisWeek.PendingPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot approved"></div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.RequestStats.ThisWeek.Approved</div>
+                            <div class="stat-percentage">@stats.RequestStats.ThisWeek.ApprovedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot rejected"></div>
+                            <div class="stat-label">Rejected</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.RequestStats.ThisWeek.Rejected</div>
+                            <div class="stat-percentage">@stats.RequestStats.ThisWeek.RejectedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Requests</div>
+                        <div class="stat-total-value">@stats.RequestStats.ThisWeek.Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2 class="stats-header">Attendance Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-title">Attendance</div>
+                    <div class="stat-period-toggle">
+                        <button class="stat-period-btn active" onclick="toggleAttendancePeriod('today')">Today</button>
+                        <button class="stat-period-btn" onclick="toggleAttendancePeriod('week')">This Week</button>
+                    </div>
+                </div>
+                <div id="attendance-today" class="stat-items">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot present"></div>
+                            <div class="stat-label">Present</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.Today.Present</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.Today.PresentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot late"></div>
+                            <div class="stat-label">Late</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.Today.Late</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.Today.LatePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot onleave"></div>
+                            <div class="stat-label">On Leave</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.Today.OnLeave</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.Today.OnLeavePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot absent"></div>
+                            <div class="stat-label">Absent</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.Today.Absent</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.Today.AbsentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Employees</div>
+                        <div class="stat-total-value">@stats.AttendanceStats.Today.Total</div>
+                    </div>
+                </div>
+                <div id="attendance-week" class="stat-items" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot present"></div>
+                            <div class="stat-label">Present</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.ThisWeek.Present</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.ThisWeek.PresentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot late"></div>
+                            <div class="stat-label">Late</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.ThisWeek.Late</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.ThisWeek.LatePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot onleave"></div>
+                            <div class="stat-label">On Leave</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.ThisWeek.OnLeave</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.ThisWeek.OnLeavePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot absent"></div>
+                            <div class="stat-label">Absent</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@stats.AttendanceStats.ThisWeek.Absent</div>
+                            <div class="stat-percentage">@stats.AttendanceStats.ThisWeek.AbsentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Slots</div>
+                        <div class="stat-total-value">@stats.AttendanceStats.ThisWeek.Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (ViewBag.Role == "Manager" && ViewBag.ManagerStats != null)
+{
+    var managerStats = ViewBag.ManagerStats as HRM_Client.Models.ManagerDashboardStatsResponse;
+    
+    <div class="stats-section">
+        <h2 class="stats-header">Request Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-title">Requests</div>
+                    <div class="stat-period-toggle">
+                        <button class="stat-period-btn active" onclick="toggleManagerRequestPeriod('today')">Today</button>
+                        <button class="stat-period-btn" onclick="toggleManagerRequestPeriod('week')">This Week</button>
+                    </div>
+                </div>
+                <div id="manager-request-today" class="stat-items">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot pending"></div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.RequestStats.Today.Pending</div>
+                            <div class="stat-percentage">@managerStats.RequestStats.Today.PendingPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot approved"></div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.RequestStats.Today.Approved</div>
+                            <div class="stat-percentage">@managerStats.RequestStats.Today.ApprovedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot rejected"></div>
+                            <div class="stat-label">Rejected</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.RequestStats.Today.Rejected</div>
+                            <div class="stat-percentage">@managerStats.RequestStats.Today.RejectedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Requests</div>
+                        <div class="stat-total-value">@managerStats.RequestStats.Today.Total</div>
+                    </div>
+                </div>
+                <div id="manager-request-week" class="stat-items" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot pending"></div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.RequestStats.ThisWeek.Pending</div>
+                            <div class="stat-percentage">@managerStats.RequestStats.ThisWeek.PendingPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot approved"></div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.RequestStats.ThisWeek.Approved</div>
+                            <div class="stat-percentage">@managerStats.RequestStats.ThisWeek.ApprovedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot rejected"></div>
+                            <div class="stat-label">Rejected</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.RequestStats.ThisWeek.Rejected</div>
+                            <div class="stat-percentage">@managerStats.RequestStats.ThisWeek.RejectedPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Requests</div>
+                        <div class="stat-total-value">@managerStats.RequestStats.ThisWeek.Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2 class="stats-header">Attendance Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-title">Team Attendance</div>
+                    <div class="stat-period-toggle">
+                        <button class="stat-period-btn active" onclick="toggleManagerAttendancePeriod('today')">Today</button>
+                        <button class="stat-period-btn" onclick="toggleManagerAttendancePeriod('week')">This Week</button>
+                    </div>
+                </div>
+                <div id="manager-attendance-today" class="stat-items">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot present"></div>
+                            <div class="stat-label">Present</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.Today.Present</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.Today.PresentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot late"></div>
+                            <div class="stat-label">Late</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.Today.Late</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.Today.LatePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot onleave"></div>
+                            <div class="stat-label">On Leave</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.Today.OnLeave</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.Today.OnLeavePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot absent"></div>
+                            <div class="stat-label">Absent</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.Today.Absent</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.Today.AbsentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Members</div>
+                        <div class="stat-total-value">@managerStats.AttendanceStats.Today.Total</div>
+                    </div>
+                </div>
+                <div id="manager-attendance-week" class="stat-items" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot present"></div>
+                            <div class="stat-label">Present</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.ThisWeek.Present</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.ThisWeek.PresentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot late"></div>
+                            <div class="stat-label">Late</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.ThisWeek.Late</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.ThisWeek.LatePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot onleave"></div>
+                            <div class="stat-label">On Leave</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.ThisWeek.OnLeave</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.ThisWeek.OnLeavePercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-left">
+                            <div class="stat-dot absent"></div>
+                            <div class="stat-label">Absent</div>
+                        </div>
+                        <div class="stat-item-right">
+                            <div class="stat-count">@managerStats.AttendanceStats.ThisWeek.Absent</div>
+                            <div class="stat-percentage">@managerStats.AttendanceStats.ThisWeek.AbsentPercentage%</div>
+                        </div>
+                    </div>
+                    <div class="stat-total">
+                        <div class="stat-total-label">Total Slots</div>
+                        <div class="stat-total-value">@managerStats.AttendanceStats.ThisWeek.Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (managerStats.TopAbsentees.Any())
+    {
+        var topAbsentee = managerStats.TopAbsentees.First();
+        <div class="stats-section">
+            <h2 class="stats-header">Most Absences (This Week)</h2>
+            <div style="background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background-color: #fff5f5; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; color: #cf222e;">
+                            @topAbsentee.FullName.Substring(0, 1).ToUpper()
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #24292f; margin-bottom: 4px;">@topAbsentee.FullName</div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="level-badge level-@topAbsentee.Level">@topAbsentee.Level</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 32px; font-weight: 300; color: #cf222e;">@topAbsentee.AbsentCount</div>
+                        <div style="font-size: 13px; color: #57606a;">days absent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<!-- Toast Notification -->
+<div id="toast" style="display: none; position: fixed; top: 24px; right: 24px; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px 20px; box-shadow: 0 4px 12px rgba(27, 31, 36, 0.15); z-index: 1001; min-width: 300px;">
+    <div style="display: flex; align-items: start; gap: 12px;">
+        <div id="toastIcon" style="flex-shrink: 0; width: 20px; height: 20px;"></div>
+        <div style="flex: 1;">
+            <div id="toastTitle" style="font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 4px;"></div>
+            <div id="toastMessage" style="font-size: 13px; color: #57606a;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showToast(title, message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toastIcon');
+        
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMessage').textContent = message;
+        
+        if (type === 'success') {
+            icon.innerHTML = '<svg style="color: #1a7f37;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>';
+        } else if (type === 'warning') {
+            icon.innerHTML = '<svg style="color: #bf8700;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>';
+        } else {
+            icon.innerHTML = '<svg style="color: #cf222e;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path></svg>';
+        }
+        
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+
+    async function checkIn() {
+        try {
+            const response = await fetch('@Url.Action("CheckIn", "Dashboard")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const toastType = result.isOnTime ? 'success' : 'warning';
+                showToast('Check-In', result.message, toastType);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Error', result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while checking in', 'error');
+        }
+    }
+
+    async function checkOut() {
+        try {
+            const response = await fetch('@Url.Action("CheckOut", "Dashboard")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const toastType = result.isOnTime ? 'success' : 'warning';
+                showToast('Check-Out', result.message, toastType);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Error', result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while checking out', 'error');
+        }
+    }
+
+    function toggleRequestPeriod(period) {
+        const todaySection = document.getElementById('request-today');
+        const weekSection = document.getElementById('request-week');
+        const buttons = document.querySelectorAll('.stat-period-toggle .stat-period-btn');
+        
+        if (period === 'today') {
+            todaySection.style.display = 'flex';
+            weekSection.style.display = 'none';
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        } else {
+            todaySection.style.display = 'none';
+            weekSection.style.display = 'flex';
+            buttons[0].classList.remove('active');
+            buttons[1].classList.add('active');
+        }
+    }
+
+    function toggleAttendancePeriod(period) {
+        const todaySection = document.getElementById('attendance-today');
+        const weekSection = document.getElementById('attendance-week');
+        const parentCard = todaySection.closest('.stat-card');
+        const buttons = parentCard.querySelectorAll('.stat-period-toggle .stat-period-btn');
+        
+        if (period === 'today') {
+            todaySection.style.display = 'flex';
+            weekSection.style.display = 'none';
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        } else {
+            todaySection.style.display = 'none';
+            weekSection.style.display = 'flex';
+            buttons[0].classList.remove('active');
+            buttons[1].classList.add('active');
+        }
+    }
+
+    function toggleManagerRequestPeriod(period) {
+        const todaySection = document.getElementById('manager-request-today');
+        const weekSection = document.getElementById('manager-request-week');
+        const parentCard = todaySection.closest('.stat-card');
+        const buttons = parentCard.querySelectorAll('.stat-period-toggle .stat-period-btn');
+        
+        if (period === 'today') {
+            todaySection.style.display = 'flex';
+            weekSection.style.display = 'none';
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        } else {
+            todaySection.style.display = 'none';
+            weekSection.style.display = 'flex';
+            buttons[0].classList.remove('active');
+            buttons[1].classList.add('active');
+        }
+    }
+
+    function toggleManagerAttendancePeriod(period) {
+        const todaySection = document.getElementById('manager-attendance-today');
+        const weekSection = document.getElementById('manager-attendance-week');
+        const parentCard = todaySection.closest('.stat-card');
+        const buttons = parentCard.querySelectorAll('.stat-period-toggle .stat-period-btn');
+        
+        if (period === 'today') {
+            todaySection.style.display = 'flex';
+            weekSection.style.display = 'none';
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        } else {
+            todaySection.style.display = 'none';
+            weekSection.style.display = 'flex';
+            buttons[0].classList.remove('active');
+            buttons[1].classList.add('active');
+        }
+    }
+</script>
+
+@if (ViewBag.Role == "Admin")
+{
+    <!-- Performance Evaluation Chat Button -->
+    <button id="performanceChatButton" onclick="openPerformanceChat()" style="position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background-color: #0969da; border: none; color: #ffffff; cursor: pointer; box-shadow: 0 4px 12px rgba(9, 105, 218, 0.3); z-index: 999; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+        <img src="~/icons/ai-voice-Stroke-Rounded-3.png" alt="AI Voice" style="width: 24px; height: 24px;">
+    </button>
+
+    <!-- Performance Evaluation Chat Modal -->
+    <div id="performanceChatModal" style="display: none; position: fixed; bottom: 96px; right: 24px; width: 500px; max-height: 80vh; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 12px; box-shadow: 0 8px 24px rgba(27, 31, 36, 0.15); z-index: 1000; overflow: hidden; display: flex; flex-direction: column;">
+        <div style="padding: 20px; border-bottom: 1px solid #d0d7de; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="backButton" onclick="showMainMenu()" style="display: none; background: none; border: none; color: #57606a; cursor: pointer; padding: 4px; align-items: center; justify-content: center; border-radius: 6px; transition: background-color 0.2s;">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path>
+                    </svg>
+                </button>
+                <h3 id="modalTitle" style="font-size: 18px; font-weight: 500; color: #24292f; margin: 0;">Performance Evaluation</h3>
+            </div>
+            <button onclick="closePerformanceChat()" style="background: none; border: none; color: #57606a; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background-color 0.2s;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="modalContent" style="padding: 20px; overflow-y: auto; flex: 1;">
+            <!-- Main Menu -->
+            <div id="mainMenu">
+                <p style="font-size: 14px; color: #57606a; margin: 0 0 16px 0;">Select an option to evaluate performance:</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button onclick="evaluateGeneral()" style="padding: 16px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 6px; background-color: #0969da; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img src="~/icons/chart-line-data-02-Stroke-Rounded.png" alt="General Evaluation" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 16px; font-weight: 500; color: #24292f; margin-bottom: 4px;">General Evaluation</div>
+                            <div style="font-size: 13px; color: #57606a;">Evaluate overall performance in the last 30 days</div>
+                        </div>
+                    </button>
+                    <button onclick="showPromotionSubMenu()" style="padding: 16px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 6px; background-color: #0969da; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img src="~/icons/add-money-circle-Stroke-Rounded.png" alt="Level Promotion" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 16px; font-weight: 500; color: #24292f; margin-bottom: 4px;">Level Promotion</div>
+                            <div style="font-size: 13px; color: #57606a;">Evaluate eligibility for level increase</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Promotion Sub Menu -->
+            <div id="promotionSubMenu" style="display: none;">
+                <p style="font-size: 14px; color: #57606a; margin: 0 0 16px 0;">Select role to evaluate for promotion:</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button onclick="evaluateManagerPromotion()" style="padding: 16px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 6px; background-color: #0969da; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img src="~/icons/manager-Stroke-Rounded-2.png" alt="Manager" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 16px; font-weight: 500; color: #24292f; margin-bottom: 4px;">Evaluate Managers</div>
+                            <div style="font-size: 13px; color: #57606a;">Analyze manager performance for level promotion</div>
+                        </div>
+                    </button>
+                    <button onclick="evaluateEmployeePromotion()" style="padding: 16px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 6px; background-color: #0969da; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img src="~/icons/user-Stroke-Rounded-2.png" alt="Employee" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 16px; font-weight: 500; color: #24292f; margin-bottom: 4px;">Evaluate Employees</div>
+                            <div style="font-size: 13px; color: #57606a;">Analyze employee performance for level promotion</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" style="display: none; text-align: center; padding: 40px 20px;">
+                <div style="display: inline-block; width: 40px; height: 40px; border: 3px solid #f6f8fa; border-top-color: #0969da; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                <p style="margin-top: 16px; font-size: 14px; color: #57606a;">Analyzing performance data...</p>
+            </div>
+
+            <!-- Results Display -->
+            <div id="resultsDisplay" style="display: none;">
+                <div style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: #24292f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-height: 500px; overflow-y: auto;">
+                    <div id="evaluationText"></div>
+                </div>
+            </div>
+
+            <!-- Promotion Results Display -->
+            <div id="promotionResultsDisplay" style="display: none;">
+                <div id="noRecommendation" style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 16px; color: #57606a; margin-bottom: 8px;">No Promotion Recommendation</div>
+                    <div style="font-size: 14px; color: #57606a;">No candidates meet the criteria for level promotion at this time.</div>
+                </div>
+                <div id="hasRecommendation" style="display: none;">
+                    <div style="background: linear-gradient(135deg, #0969da 0%, #0860ca 100%); border-radius: 8px; padding: 20px; margin-bottom: 16px; color: #ffffff;">
+                        <div style="font-size: 14px; font-weight: 500; margin-bottom: 8px; opacity: 0.9;">Recommended for Promotion</div>
+                        <div style="font-size: 20px; font-weight: 600; margin-bottom: 4px;" id="recommendedName"></div>
+                        <div style="font-size: 13px; opacity: 0.9;" id="recommendedLevelInfo"></div>
+                    </div>
+                    <div style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                        <div style="font-size: 13px; font-weight: 500; color: #24292f; margin-bottom: 8px;">Reason:</div>
+                        <div style="font-size: 14px; color: #57606a; line-height: 1.6;" id="promotionReason"></div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="acceptPromotion()" style="flex: 1; padding: 12px 24px; background-color: #1a7f37; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 0.2s;">
+                            Accept
+                        </button>
+                        <button onclick="rejectPromotion()" style="flex: 1; padding: 12px 24px; background-color: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 0.2s;">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @@keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <style>
+        #performanceChatButton:hover {
+            background-color: #0860ca;
+            transform: scale(1.05);
+        }
+
+        #performanceChatModal button[onclick*="evaluate"]:hover,
+        #performanceChatModal button[onclick*="show"]:hover {
+            background-color: #ffffff;
+            border-color: #0969da;
+            box-shadow: 0 1px 3px rgba(9, 105, 218, 0.12);
+        }
+
+        #performanceChatModal button[onclick="closePerformanceChat()"]:hover,
+        #performanceChatModal button[onclick="showMainMenu()"]:hover {
+            background-color: #f6f8fa;
+        }
+
+        #performanceChatModal button[onclick="acceptPromotion()"]:hover {
+            background-color: #1a7f37;
+        }
+
+        #performanceChatModal button[onclick="rejectPromotion()"]:hover {
+            background-color: #ffffff;
+            border-color: #0969da;
+        }
+    </style>
+
+    <script>
+        function openPerformanceChat() {
+            const modal = document.getElementById('performanceChatModal');
+            modal.style.display = 'flex';
+            showMainMenu();
+        }
+
+        function closePerformanceChat() {
+            const modal = document.getElementById('performanceChatModal');
+            modal.style.display = 'none';
+            showMainMenu();
+        }
+
+        function showMainMenu() {
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('promotionSubMenu').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsDisplay').style.display = 'none';
+            document.getElementById('promotionResultsDisplay').style.display = 'none';
+            document.getElementById('backButton').style.display = 'none';
+            document.getElementById('modalTitle').textContent = 'Performance Evaluation';
+        }
+
+        function showPromotionSubMenu() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('promotionSubMenu').style.display = 'block';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsDisplay').style.display = 'none';
+            document.getElementById('promotionResultsDisplay').style.display = 'none';
+            document.getElementById('backButton').style.display = 'flex';
+            document.getElementById('modalTitle').textContent = 'Level Promotion';
+        }
+
+        async function evaluateGeneral() {
+            // Ensure modal is open
+            const modal = document.getElementById('performanceChatModal');
+            modal.style.display = 'flex';
+
+            // Hide menus, show loading
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('promotionSubMenu').style.display = 'none';
+            document.getElementById('resultsDisplay').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('backButton').style.display = 'flex';
+            document.getElementById('modalTitle').textContent = 'General Evaluation';
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes timeout
+                
+                const response = await fetch('@Url.Action("GeneralEvaluation", "Dashboard")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to generate evaluation');
+                }
+
+                // Display results
+                displayEvaluationResults(result.evaluation);
+
+            } catch (error) {
+                console.error('Error:', error);
+                let errorMessage = 'An error occurred while generating evaluation';
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The evaluation is taking too long. Please try again.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                showToast('Error', errorMessage, 'error');
+                showMainMenu();
+            }
+        }
+
+        function displayEvaluationResults(evaluationText) {
+            // Hide loading, show results
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsDisplay').style.display = 'block';
+
+            // Display formatted text
+            const evaluationDiv = document.getElementById('evaluationText');
+            evaluationDiv.textContent = evaluationText || 'No evaluation text available.';
+        }
+
+        let currentPromotionData = null;
+
+        async function evaluateManagerPromotion() {
+            await evaluatePromotion('Manager');
+        }
+
+        async function evaluateEmployeePromotion() {
+            await evaluatePromotion('Employee');
+        }
+
+        async function evaluatePromotion(role) {
+            // Ensure modal is open
+            const modal = document.getElementById('performanceChatModal');
+            modal.style.display = 'flex';
+
+            // Hide menus, show loading
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('promotionSubMenu').style.display = 'none';
+            document.getElementById('resultsDisplay').style.display = 'none';
+            document.getElementById('promotionResultsDisplay').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('backButton').style.display = 'flex';
+            document.getElementById('modalTitle').textContent = `Evaluating ${role}s for Promotion`;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes timeout
+                
+                const response = await fetch('@Url.Action("LevelPromotionEvaluation", "Dashboard")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(role),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to generate evaluation');
+                }
+
+                // Display promotion results
+                displayPromotionResults(result.data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                let errorMessage = 'An error occurred while generating evaluation';
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The evaluation is taking too long. Please try again.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                showToast('Error', errorMessage, 'error');
+                showMainMenu();
+            }
+        }
+
+        function displayPromotionResults(data) {
+            currentPromotionData = data;
+
+            // Hide loading, show results
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('promotionResultsDisplay').style.display = 'block';
+
+            if (!data.hasRecommendation) {
+                document.getElementById('noRecommendation').style.display = 'block';
+                document.getElementById('hasRecommendation').style.display = 'none';
+            } else {
+                document.getElementById('noRecommendation').style.display = 'none';
+                document.getElementById('hasRecommendation').style.display = 'block';
+                
+                document.getElementById('recommendedName').textContent = data.recommendedUserName || 'Unknown';
+                document.getElementById('recommendedLevelInfo').textContent = `Level ${data.currentLevel} → Level ${data.recommendedLevel}`;
+                document.getElementById('promotionReason').textContent = data.reason || 'No reason provided.';
+            }
+        }
+
+        async function acceptPromotion() {
+            if (!currentPromotionData || !currentPromotionData.hasRecommendation) {
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to promote ${currentPromotionData.recommendedUserName} from Level ${currentPromotionData.currentLevel} to Level ${currentPromotionData.recommendedLevel}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('@Url.Action("PromoteLevel", "Dashboard")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentPromotionData.recommendedUserId)
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to promote level');
+                }
+
+                showToast('Success', `Successfully promoted ${result.data.fullName} from Level ${result.data.oldLevel} to Level ${result.data.newLevel}`, 'success');
+                closePerformanceChat();
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error', error.message || 'Failed to promote level', 'error');
+            }
+        }
+
+        function rejectPromotion() {
+            closePerformanceChat();
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('performanceChatModal');
+            const button = document.getElementById('performanceChatButton');
+            if (modal && !modal.contains(e.target) && !button.contains(e.target)) {
+                closePerformanceChat();
+            }
+        });
+    </script>
+}

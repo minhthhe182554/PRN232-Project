@@ -17,7 +17,7 @@ namespace HRM_Client.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<LoginResponse?> LoginAsync(LoginRequest request)
+        public async Task<(LoginResponse? response, string? errorMessage)> LoginAsync(LoginRequest request)
         {
             var json = JsonSerializer.Serialize(request, JsonOptions.DefaultOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -25,10 +25,25 @@ namespace HRM_Client.Services
             var response = await _httpClient.PostAsync("/api/auth/login", content);
 
             if (!response.IsSuccessStatusCode)
-                return null;
+            {
+                // Try to get error message from API
+                try
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorObj = JsonSerializer.Deserialize<JsonElement>(errorContent, JsonOptions.DefaultOptions);
+                    if (errorObj.TryGetProperty("message", out var messageElement))
+                    {
+                        return (null, messageElement.GetString());
+                    }
+                }
+                catch { }
+                
+                return (null, null);
+            }
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<LoginResponse>(responseContent, JsonOptions.DefaultOptions);
+            var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, JsonOptions.DefaultOptions);
+            return (loginResponse, null);
         }
 
         public void SaveToken(string token)
@@ -53,6 +68,26 @@ namespace HRM_Client.Services
         {
             var context = _httpContextAccessor.HttpContext;
             context?.Response.Cookies.Delete("AuthToken");
+        }
+
+        public async Task<RegisterResponse?> RegisterAsync(RegisterRequest request)
+        {
+            var token = GetToken();
+            if (string.IsNullOrEmpty(token))
+                return null;
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var json = JsonSerializer.Serialize(request, JsonOptions.DefaultOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("/api/auth/register", content);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<RegisterResponse>(responseContent, JsonOptions.DefaultOptions);
         }
     }
 }

@@ -1,0 +1,80 @@
+/* Level Badge Colors */
+.level-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.level-badge.level-1 {
+    background-color: #ddf4ff;
+    color: #0969da;
+    border: 1px solid #54aeff;
+}
+
+.level-badge.level-2 {
+    background-color: #dafbe1;
+    color: #1a7f37;
+    border: 1px solid #4ac26b;
+}
+
+.level-badge.level-3 {
+    background-color: #fff8c5;
+    color: #bf8700;
+    border: 1px solid #d4a72c;
+}
+
+/* Collapsible Section Styles */
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #d0d7de;
+    transition: background-color 0.2s ease;
+}
+
+.collapsible-header:hover {
+    background-color: #f6f8fa;
+    padding: 8px 12px;
+    margin: -8px -12px 4px -12px;
+    border-radius: 6px;
+}
+
+/* Nested collapsible header (inside user-section) */
+.user-section .collapsible-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #d0d7de;
+    margin: 0;
+}
+
+.user-section .collapsible-header:hover {
+    padding: 16px 20px;
+    margin: 0;
+}
+
+.collapse-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.collapse-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 5000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+

@@ -32,6 +32,22 @@ namespace HRM_API.Repositories
                 .ThenBy(s => s.Level)
                 .ToListAsync();
         }
+
+        public async Task<SalaryScale?> GetByIdAsync(int id)
+        {
+            return await _context.SalaryScales
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<bool> UpdateBaseSalaryAsync(int id, decimal baseSalary)
+        {
+            var salaryScale = await _context.SalaryScales.FindAsync(id);
+            if (salaryScale == null) return false;
+
+            salaryScale.BaseSalary = baseSalary;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
 

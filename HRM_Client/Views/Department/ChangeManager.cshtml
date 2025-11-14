@@ -1,0 +1,603 @@
+@model HRM_Client.Models.DepartmentResponse
+@{
+    ViewBag.Title = "Change Manager";
+    Layout = "_DashboardLayout";
+}
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Change Manager for @Model.Name</h1>
+        <p class="content-subtitle">Search and promote an employee to become the new manager</p>
+    </div>
+</div>
+
+<style>
+    .manager-info-card {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .manager-info-header {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 12px;
+    }
+
+    .manager-info-content {
+        font-size: 16px;
+        color: #57606a;
+    }
+
+    .search-card {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .search-header {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 16px;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px;
+        font-size: 14px;
+        line-height: 20px;
+        color: #24292f;
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+    }
+
+    .search-button {
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #ffffff;
+        background-color: #0969da;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .search-button:hover {
+        background-color: #0860ca;
+    }
+
+    .search-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .search-hint {
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    .results-card {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 12px;
+        padding: 24px;
+    }
+
+    .results-header {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 16px;
+    }
+
+    .results-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .employee-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .employee-item:hover {
+        background: #edf0f2;
+        border-color: #c5cbd3;
+    }
+
+    .employee-info {
+        flex: 1;
+    }
+
+    .employee-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 4px;
+    }
+
+    .employee-details {
+        font-size: 13px;
+        color: #57606a;
+        display: flex;
+        gap: 16px;
+    }
+
+    .level-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+    .promote-button {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #ffffff;
+        background-color: #0969da;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .promote-button:hover {
+        background-color: #0860ca;
+    }
+
+    .empty-results {
+        text-align: center;
+        padding: 32px;
+        color: #57606a;
+    }
+
+    .warning-box {
+        background: #fff8c5;
+        border: 1px solid #bf8700;
+        border-left: 4px solid #bf8700;
+        border-radius: 6px;
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+
+    .warning-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .warning-text {
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .back-button:hover {
+        background-color: #f3f4f6;
+        border-color: #c5cbd3;
+        text-decoration: none;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: slideDown 0.2s ease;
+    }
+
+    .modal-header {
+        font-size: 18px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 12px;
+    }
+
+    .modal-body {
+        font-size: 14px;
+        color: #57606a;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action.primary {
+        color: #ffffff;
+        background-color: #0969da;
+    }
+
+    .btn-action.primary:hover {
+        background-color: #0860ca;
+    }
+
+    .btn-action.secondary {
+        color: #24292f;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+    }
+
+    .btn-action.secondary:hover {
+        background-color: #f3f4f6;
+        border-color: #c5cbd3;
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .toast {
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-width: 320px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        animation: slideInRight 0.2s ease;
+    }
+
+    .toast.success {
+        border-left: 4px solid #1a7f37;
+    }
+
+    .toast.error {
+        border-left: 4px solid #cf222e;
+    }
+
+    .toast-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .toast-content {
+        flex: 1;
+    }
+
+    .toast-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 4px;
+    }
+
+    .toast-message {
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+</style>
+
+<div class="manager-info-card">
+    <div class="manager-info-header">Current Manager</div>
+    <div class="manager-info-content">@Model.ManagerName</div>
+</div>
+
+<div class="warning-box">
+    <div class="warning-title">Important</div>
+    <div class="warning-text">
+        When you promote a new employee to manager, the current manager (@Model.ManagerName) will be automatically demoted to Employee Level 3.
+    </div>
+</div>
+
+<div class="search-card">
+    <div class="search-header">Department Employees</div>
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by username (optional)" />
+        <button type="button" id="searchButton" class="search-button" onclick="searchEmployees()">Search</button>
+        <button type="button" class="search-button" style="background-color: #57606a;" onclick="loadAllEmployees()">Show All</button>
+    </div>
+    <div class="search-hint">Search employees in this department or show all</div>
+</div>
+
+<div class="results-card" id="resultsCard">
+    <div class="results-header">Employees in @Model.Name</div>
+    <div class="results-list" id="resultsList">
+        <div class="empty-results">Loading employees...</div>
+    </div>
+</div>
+
+<div style="margin-top: 24px;">
+    <a href="@Url.Action("Index", "Department")" class="back-button">Back to Departments</a>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-header" id="modalTitle"></div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-action secondary" onclick="closeModal()">Cancel</button>
+            <button type="button" class="btn-action primary" id="modalConfirmBtn"></button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    const departmentId = @Model.Id;
+
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchEmployees();
+        }
+    });
+
+    // Load all employees on page load
+    window.addEventListener('DOMContentLoaded', function() {
+        loadAllEmployees();
+    });
+
+    async function loadAllEmployees() {
+        const resultsList = document.getElementById('resultsList');
+        resultsList.innerHTML = '<div class="empty-results">Loading...</div>';
+
+        try {
+            const response = await fetch(`@Url.Action("GetDepartmentEmployees", "Department")?departmentId=${departmentId}`);
+            const result = await response.json();
+
+            displayEmployees(result);
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while loading employees', 'error');
+            resultsList.innerHTML = '<div class="empty-results">Failed to load employees</div>';
+        }
+    }
+
+    async function searchEmployees() {
+        const input = document.getElementById('searchInput');
+        const username = input.value.trim();
+        const button = document.getElementById('searchButton');
+        const resultsList = document.getElementById('resultsList');
+
+        if (username.length === 0) {
+            loadAllEmployees();
+            return;
+        }
+
+        if (username.length < 2) {
+            showToast('Error', 'Please enter at least 2 characters', 'error');
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = 'Searching...';
+
+        try {
+            const response = await fetch(`@Url.Action("SearchEmployees", "Department")?username=${encodeURIComponent(username)}&departmentId=${departmentId}`);
+            const result = await response.json();
+
+            displayEmployees(result);
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while searching', 'error');
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Search';
+        }
+    }
+
+    function displayEmployees(result) {
+        const resultsList = document.getElementById('resultsList');
+
+        if (result.success && result.employees && result.employees.length > 0) {
+            resultsList.innerHTML = '';
+            result.employees.forEach(emp => {
+                const item = document.createElement('div');
+                item.className = 'employee-item';
+                item.innerHTML = `
+                    <div class="employee-info">
+                        <div class="employee-name">${emp.fullName}</div>
+                        <div class="employee-details">
+                            <span>Username: ${emp.username}</span>
+                            <span><span class="level-badge level-${emp.level}">${emp.level}</span></span>
+                        </div>
+                    </div>
+                    <button type="button" class="promote-button" onclick="promoteEmployee(${emp.id}, '${emp.fullName}')">
+                        Promote
+                    </button>
+                `;
+                resultsList.appendChild(item);
+            });
+        } else {
+            resultsList.innerHTML = '<div class="empty-results">No employees found in this department</div>';
+        }
+    }
+
+    function promoteEmployee(employeeId, employeeName) {
+        showModal(
+            'Promote Employee to Manager',
+            `Are you sure you want to promote "${employeeName}" to Manager?\n\nThe current manager will be demoted to Employee Level 3.`,
+            async () => {
+                closeModal();
+                try {
+                    const response = await fetch('@Url.Action("UpdateManager", "Department")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            departmentId: departmentId,
+                            newManagerId: employeeId
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showToast('Success', result.message, 'success');
+                        setTimeout(() => {
+                            window.location.href = '@Url.Action("Index", "Department")';
+                        }, 1500);
+                    } else {
+                        showToast('Error', result.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Error', 'An error occurred while promoting employee', 'error');
+                }
+            }
+        );
+    }
+
+    function showModal(title, message, onConfirm) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMessage').textContent = message;
+        
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.onclick = onConfirm;
+        
+        document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    function showToast(title, message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' 
+            ? '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#1a7f37" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+            : '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#cf222e" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+        
+        toast.innerHTML = `
+            ${icon}
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+        `;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideInRight 0.2s ease reverse';
+            setTimeout(() => toast.remove(), 200);
+        }, 4000);
+    }
+</script>
+

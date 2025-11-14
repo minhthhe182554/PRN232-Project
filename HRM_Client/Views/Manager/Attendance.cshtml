@@ -1,0 +1,552 @@
+@{
+    ViewBag.Title = "My Attendance";
+    Layout = "_DashboardLayout";
+    
+    var history = ViewBag.AttendanceHistory as HRM_Client.Models.AttendanceHistoryResponse;
+    var selectedPeriod = ViewBag.SelectedPeriod as string ?? "week";
+}
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<div class="content-header">
+    <div>
+        <h1 class="content-title">My Attendance</h1>
+        <p class="content-subtitle">View your attendance history</p>
+    </div>
+</div>
+
+<style>
+    .attendance-container {
+        margin-top: 24px;
+    }
+
+    .attendance-controls {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .controls-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .controls-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .period-toggle {
+        display: flex;
+        gap: 4px;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 2px;
+    }
+
+    .period-btn {
+        padding: 6px 16px;
+        font-size: 14px;
+        border: none;
+        background: none;
+        color: #57606a;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .period-btn.active {
+        background-color: #ffffff;
+        color: #24292f;
+        font-weight: 500;
+        box-shadow: 0 1px 2px rgba(27,31,36,0.12);
+    }
+
+    .search-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #d0d7de;
+    }
+
+    .search-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 8px;
+    }
+
+    .search-input-wrapper {
+        display: flex;
+        gap: 8px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 14px;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+    }
+
+    .search-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 400;
+        border: 1px solid #0969da;
+        border-radius: 6px;
+        background-color: #0969da;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .search-btn:hover {
+        background-color: #0860ca;
+    }
+
+    .attendance-table-container {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attendance-table thead {
+        background-color: #f6f8fa;
+    }
+
+    .attendance-table th {
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 500;
+        color: #57606a;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .attendance-table td {
+        padding: 16px 20px;
+        font-size: 14px;
+        color: #24292f;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .attendance-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .attendance-table tbody tr:hover {
+        background-color: #f6f8fa;
+    }
+
+    .date-cell {
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .time-cell {
+        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .status-badge.present {
+        background-color: #dafbe1;
+        border: 1px solid #1a7f37;
+        color: #1a7f37;
+    }
+
+    .status-badge.late {
+        background-color: #fff8c5;
+        border: 1px solid #bf8700;
+        color: #bf8700;
+    }
+
+    .status-badge.leaveearly {
+        background-color: #ddf4ff;
+        border: 1px solid #0969da;
+        color: #0969da;
+    }
+
+    .status-badge.absent {
+        background-color: #fff5f5;
+        border: 1px solid #cf222e;
+        color: #cf222e;
+    }
+
+    .working-hours {
+        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: #57606a;
+        font-size: 14px;
+    }
+
+    .search-result {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .search-result-header {
+        font-size: 16px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 16px;
+    }
+
+    .search-result-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .result-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .result-label {
+        font-size: 13px;
+        color: #57606a;
+    }
+
+    .result-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+    }
+</style>
+
+<div class="attendance-container">
+    <div class="attendance-controls">
+        <div class="controls-header">
+            <div class="controls-title">View History</div>
+            <div class="period-toggle">
+                <button class="period-btn @(selectedPeriod == "week" ? "active" : "")" onclick="loadHistory('week')">Last Week</button>
+                <button class="period-btn @(selectedPeriod == "month" ? "active" : "")" onclick="loadHistory('month')">Last Month</button>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <label class="search-label">Search by Date</label>
+            <div class="search-input-wrapper">
+                <input type="date" id="searchDate" class="search-input" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <button class="search-btn" onclick="searchByDate()">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyTableContainer" class="attendance-table-container">
+        @if (history != null && history.Records.Any())
+        {
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Status</th>
+                        <th>Working Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in history.Records)
+                    {
+                        <tr>
+                            <td class="date-cell">@record.Date.ToString("MMM dd, yyyy", new System.Globalization.CultureInfo("en-US"))</td>
+                            <td class="time-cell">@record.CheckIn.ToString("hh:mm tt", new System.Globalization.CultureInfo("en-US"))</td>
+                            <td class="time-cell">@(record.CheckOut?.ToString("hh:mm tt", new System.Globalization.CultureInfo("en-US")) ?? "—")</td>
+                            <td>
+                                @{
+                                    var statusClass = record.Status.ToLower();
+                                    var statusText = record.Status == "LeaveEarly" ? "On Leave" : record.Status;
+                                }
+                                <span class="status-badge @statusClass">@statusText</span>
+                            </td>
+                            <td class="working-hours">
+                                @if (record.WorkingHours.HasValue)
+                                {
+                                    var hours = (int)record.WorkingHours.Value.TotalHours;
+                                    var minutes = record.WorkingHours.Value.Minutes;
+                                    <text>@hours:@minutes.ToString("00")</text>
+                                }
+                                else
+                                {
+                                    <text>—</text>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">No attendance records found for @(history?.Period ?? "selected period")</div>
+        }
+    </div>
+
+    <div id="searchResultContainer" style="display: none;"></div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" style="display: none; position: fixed; top: 24px; right: 24px; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 16px 20px; box-shadow: 0 4px 12px rgba(27, 31, 36, 0.15); z-index: 1001; min-width: 300px;">
+    <div style="display: flex; align-items: start; gap: 12px;">
+        <div id="toastIcon" style="flex-shrink: 0; width: 20px; height: 20px;"></div>
+        <div style="flex: 1;">
+            <div id="toastTitle" style="font-size: 14px; font-weight: 500; color: #24292f; margin-bottom: 4px;"></div>
+            <div id="toastMessage" style="font-size: 13px; color: #57606a;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showToast(title, message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toastIcon');
+        
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMessage').textContent = message;
+        
+        if (type === 'success') {
+            icon.innerHTML = '<svg style="color: #1a7f37;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>';
+        } else if (type === 'warning') {
+            icon.innerHTML = '<svg style="color: #bf8700;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>';
+        } else {
+            icon.innerHTML = '<svg style="color: #cf222e;" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"></path></svg>';
+        }
+        
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+
+    async function loadHistory(period) {
+        // Update button states
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if ((period === 'week' && btn.textContent === 'Last Week') || 
+                (period === 'month' && btn.textContent === 'Last Month')) {
+                btn.classList.add('active');
+            }
+        });
+
+        try {
+            const response = await fetch('@Url.Action("GetHistory", "Manager")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(period)
+            });
+
+            const result = await response.json();
+
+                if (result.success) {
+                renderHistoryTable(result.data);
+                // Hide search result and show table
+                document.getElementById('searchResultContainer').style.display = 'none';
+                document.getElementById('historyTableContainer').style.display = 'block';
+            } else {
+                showToast('Error', result.message || 'Failed to load history', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while loading history', 'error');
+        }
+    }
+
+    async function searchByDate() {
+        const dateInput = document.getElementById('searchDate');
+        const dateStr = dateInput.value;
+
+        if (!dateStr) {
+            showToast('Error', 'Please select a date', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('@Url.Action("SearchByDate", "Manager")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dateStr)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                renderSearchResult(result.data);
+                // Hide history table
+                document.getElementById('historyTableContainer').style.display = 'none';
+            } else {
+                showToast('Info', result.message || 'Ngày đó công ty chưa mở cửa', 'warning');
+                document.getElementById('searchResultContainer').style.display = 'none';
+                // Show history table again
+                document.getElementById('historyTableContainer').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred while searching', 'error');
+        }
+    }
+
+    function renderHistoryTable(data) {
+        const container = document.getElementById('historyTableContainer');
+        
+        if (!data.records || data.records.length === 0) {
+            container.innerHTML = `<div class="empty-state">No attendance records found for ${data.period}</div>`;
+            return;
+        }
+
+        let tableHTML = `
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Status</th>
+                        <th>Working Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        data.records.forEach(record => {
+            const date = new Date(record.date);
+            const checkIn = new Date(record.checkIn);
+            const checkOut = record.checkOut ? new Date(record.checkOut) : null;
+            const statusClass = record.status.toLowerCase();
+            const statusText = record.status === 'LeaveEarly' ? 'On Leave' : record.status;
+            
+            let workingHours = '—';
+            if (record.checkOut && record.checkIn) {
+                const checkInTime = new Date(record.checkIn);
+                const checkOutTime = new Date(record.checkOut);
+                const diffMs = checkOutTime - checkInTime;
+                const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                workingHours = `${hours}:${minutes.toString().padStart(2, '0')}`;
+            }
+
+            tableHTML += `
+                <tr>
+                    <td class="date-cell">${formatDate(date)}</td>
+                    <td class="time-cell">${formatTime(checkIn)}</td>
+                    <td class="time-cell">${checkOut ? formatTime(checkOut) : '—'}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td class="working-hours">${workingHours}</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+
+        container.innerHTML = tableHTML;
+        container.style.display = 'block';
+    }
+
+    function renderSearchResult(record) {
+        const container = document.getElementById('searchResultContainer');
+        const date = new Date(record.date);
+        const checkIn = new Date(record.checkIn);
+        const checkOut = record.checkOut ? new Date(record.checkOut) : null;
+        const statusClass = record.status.toLowerCase();
+        const statusText = record.status === 'LeaveEarly' ? 'On Leave' : record.status;
+        
+        let workingHours = '—';
+        if (record.checkOut && record.checkIn) {
+            const checkInTime = new Date(record.checkIn);
+            const checkOutTime = new Date(record.checkOut);
+            const diffMs = checkOutTime - checkInTime;
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            workingHours = `${hours}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        container.innerHTML = `
+            <div class="search-result">
+                <div class="search-result-header">Attendance Record for ${formatDate(date)}</div>
+                <div class="search-result-content">
+                    <div class="result-item">
+                        <div class="result-label">Check-In</div>
+                        <div class="result-value">${formatTime(checkIn)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Check-Out</div>
+                        <div class="result-value">${checkOut ? formatTime(checkOut) : '—'}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Status</div>
+                        <div class="result-value"><span class="status-badge ${statusClass}">${statusText}</span></div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Working Hours</div>
+                        <div class="result-value working-hours">${workingHours}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.style.display = 'block';
+    }
+
+    function formatDate(date) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')}, ${date.getFullYear()}`;
+    }
+
+    function formatTime(date) {
+        let hours = date.getHours();
+        const minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    }
+</script>
+

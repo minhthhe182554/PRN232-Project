@@ -1,0 +1,550 @@
+@model HRM_Client.Models.RequestListResponse
+@{
+    ViewBag.Title = "Department Requests";
+    Layout = "_DashboardLayout";
+    
+    var requests = Model?.Requests ?? new List<HRM_Client.Models.RequestResponseDto>();
+    var requestStatus = ViewBag.RequestStatus as string ?? "All";
+    var requestType = ViewBag.RequestType as string ?? "All";
+}
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<div class="content-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="content-title">Department Requests</h1>
+            <p class="content-subtitle">View and manage requests from your department employees</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;">
+            <span style="font-size: 14px; color: #57606a;">Total Requests:</span>
+            <span style="font-size: 20px; font-weight: 500; color: #24292f;">@requests.Count</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .requests-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-top: 24px;
+    }
+
+    .filter-section {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .filter-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #24292f;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 400;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: #24292f;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-btn:hover {
+        background-color: #f6f8fa;
+    }
+
+    .filter-btn.active {
+        background-color: #0969da;
+        border-color: #0969da;
+        color: #ffffff;
+    }
+
+    .requests-table-container {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .requests-table thead {
+        background-color: #f6f8fa;
+    }
+
+    .requests-table th {
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 500;
+        color: #57606a;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .requests-table td {
+        padding: 16px 20px;
+        font-size: 14px;
+        color: #24292f;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .requests-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .requests-table tbody tr:hover {
+        background-color: #f6f8fa;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .status-badge.pending {
+        background-color: #fff8c5;
+        color: #bf8700;
+    }
+
+    .status-badge.approved {
+        background-color: #dafbe1;
+        color: #1a7f37;
+    }
+
+    .status-badge.rejected {
+        background-color: #fff5f5;
+        color: #cf222e;
+    }
+
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        background-color: #f6f8fa;
+        color: #24292f;
+        border: 1px solid #d0d7de;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 400;
+        border: 1px solid;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-approve {
+        background-color: #1a7f37;
+        border-color: #1a7f37;
+        color: #ffffff;
+    }
+
+    .btn-approve:hover {
+        background-color: #176f2e;
+        border-color: #176f2e;
+    }
+
+    .btn-reject {
+        background-color: #cf222e;
+        border-color: #cf222e;
+        color: #ffffff;
+    }
+
+    .btn-reject:hover {
+        background-color: #b91c28;
+        border-color: #b91c28;
+    }
+
+    .btn-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: #57606a;
+        font-size: 14px;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: slideDown 0.2s ease;
+    }
+
+    .modal-header {
+        font-size: 18px;
+        font-weight: 500;
+        color: #24292f;
+        margin-bottom: 12px;
+    }
+
+    .modal-body {
+        font-size: 14px;
+        color: #57606a;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .btn-modal {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 400;
+        border: 1px solid;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-modal-secondary {
+        background-color: #ffffff;
+        border-color: #d0d7de;
+        color: #24292f;
+    }
+
+    .btn-modal-secondary:hover {
+        background-color: #f6f8fa;
+    }
+
+    .btn-modal-primary {
+        background-color: #0969da;
+        border-color: #0969da;
+        color: #ffffff;
+    }
+
+    .btn-modal-primary:hover {
+        background-color: #0860ca;
+    }
+
+    .btn-modal-danger {
+        background-color: #cf222e;
+        border-color: #cf222e;
+        color: #ffffff;
+    }
+
+    .btn-modal-danger:hover {
+        background-color: #b91c28;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 24px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .toast {
+        background-color: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 12px 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease;
+    }
+
+    .toast.success {
+        border-left: 4px solid #1a7f37;
+    }
+
+    .toast.error {
+        border-left: 4px solid #cf222e;
+    }
+
+    .toast-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .toast-message {
+        flex: 1;
+        font-size: 14px;
+        color: #24292f;
+    }
+
+    @@keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="requests-container">
+    <div class="filter-section">
+        <span class="filter-label">Filter by type:</span>
+        <div class="filter-buttons">
+            @{
+                var statusParam = !string.IsNullOrEmpty(requestStatus) && requestStatus != "All" ? $"status={requestStatus}&" : "";
+            }
+            <a href="/Manager/Requests?@(statusParam)type=" class="filter-btn @(requestType == "All" ? "active" : "")">All</a>
+            <a href="/Manager/Requests?@(statusParam)type=Leave" class="filter-btn @(requestType == "Leave" ? "active" : "")">Leave</a>
+            <a href="/Manager/Requests?@(statusParam)type=Resignation" class="filter-btn @(requestType == "Resignation" ? "active" : "")">Resignation</a>
+            <a href="/Manager/Requests?@(statusParam)type=Overtime" class="filter-btn @(requestType == "Overtime" ? "active" : "")">Overtime</a>
+        </div>
+    </div>
+
+    <div class="requests-table-container">
+        @if (requests.Any())
+        {
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Content</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in requests)
+                    {
+                        <tr>
+                            <td>@request.Id</td>
+                            <td>
+                                <div style="font-weight: 500; color: #24292f;">@request.UserFullName</div>
+                            </td>
+                            <td>
+                                <span class="type-badge">@request.Type</span>
+                            </td>
+                            <td>@request.StartDate.ToString("yyyy-MM-dd")</td>
+                            <td>@request.EndDate.ToString("yyyy-MM-dd")</td>
+                            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@request.Content">@request.Content</td>
+                            <td>
+                                <span class="status-badge @request.Status.ToLower()">@request.Status</span>
+                            </td>
+                            <td>
+                                @if (request.Status == "Pending")
+                                {
+                                    <div class="action-buttons">
+                                        <button class="btn-action btn-approve" data-request-id="@request.Id" data-status="Approved" data-employee="@request.UserFullName" data-type="@request.Type" onclick="handleRequestAction(this)">Approve</button>
+                                        <button class="btn-action btn-reject" data-request-id="@request.Id" data-status="Rejected" data-employee="@request.UserFullName" data-type="@request.Type" onclick="handleRequestAction(this)">Reject</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span style="color: #57606a; font-size: 13px;">Processed</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No requests found for this filter.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header" id="modalTitle"></div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-footer">
+            <button class="btn-modal btn-modal-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn-modal" id="modalConfirmBtn" onclick=""></button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    let currentRequestId = null;
+    let currentStatus = null;
+
+    function handleRequestAction(button) {
+        const requestId = parseInt(button.getAttribute('data-request-id'));
+        const status = button.getAttribute('data-status');
+        const employeeName = button.getAttribute('data-employee');
+        const requestType = button.getAttribute('data-type');
+        showConfirmModal(requestId, status, employeeName, requestType);
+    }
+
+    function showConfirmModal(requestId, status, employeeName, requestType) {
+        currentRequestId = requestId;
+        currentStatus = status;
+        
+        const modal = document.getElementById('confirmModal');
+        const title = document.getElementById('modalTitle');
+        const message = document.getElementById('modalMessage');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        
+        const isApprove = status === 'Approved';
+        title.textContent = isApprove ? 'Approve Request' : 'Reject Request';
+        message.textContent = `Are you sure you want to ${isApprove ? 'approve' : 'reject'} the ${requestType} request from ${employeeName}?`;
+        
+        confirmBtn.textContent = isApprove ? 'Approve' : 'Reject';
+        confirmBtn.className = isApprove ? 'btn-modal btn-modal-primary' : 'btn-modal btn-modal-danger';
+        confirmBtn.onclick = confirmAction;
+        
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+        currentRequestId = null;
+        currentStatus = null;
+    }
+
+    function confirmAction() {
+        if (!currentRequestId || !currentStatus) return;
+        
+        const request = {
+            requestId: currentRequestId,
+            status: currentStatus
+        };
+        
+        fetch('/Manager/UpdateRequestStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request)
+        })
+        .then(response => response.json())
+        .then(data => {
+            closeModal();
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showToast(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            closeModal();
+            showToast('An error occurred. Please try again.', 'error');
+        });
+    }
+
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' 
+            ? '<svg class="toast-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>'
+            : '<svg class="toast-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path></svg>';
+        
+        toast.innerHTML = `${icon}<span class="toast-message">${message}</span>`;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideInRight 0.3s ease reverse';
+            setTimeout(() => {
+                container.removeChild(toast);
+            }, 300);
+        }, 4000);
+    }
+
+    // Close modal on overlay click
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+</script>
+

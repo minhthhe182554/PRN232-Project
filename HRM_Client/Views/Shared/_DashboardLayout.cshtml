@@ -311,7 +311,7 @@
                         </div>
                     </div>
                     <div class="dropdown-menu">
-                        <a href="/Profile" class="dropdown-item">
+                        <a href="/Profile/Index" class="dropdown-item">
                             <svg viewBox="0 0 16 16" fill="currentColor">
                                 <path d="M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
                             </svg>
@@ -354,27 +354,31 @@
                         <a href="/User/Index" class="sidebar-menu-link @(currentController == "User" ? "active" : "")">Users</a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Departments</a>
+                        <a href="/Compensation/Index" class="sidebar-menu-link @(currentController == "Compensation" ? "active" : "")">Compensation</a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Salary Scales</a>
+                        <a href="/Department/Index" class="sidebar-menu-link @(currentController == "Department" ? "active" : "")">Departments</a>
                     </li>
                 }
                 else if (ViewBag.Role == "Manager")
                 {
                     <div class="sidebar-section-title">Department</div>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Employees</a>
+                        <a href="/Manager/Employees" class="sidebar-menu-link @(currentController == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Employees" ? "active" : "")">Employees</a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Attendance</a>
+                        <a href="/Manager/Attendance" class="sidebar-menu-link @(currentController == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Attendance" ? "active" : "")">Attendance</a>
                     </li>
                     <div class="sidebar-section-title">Requests</div>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Leave Requests</a>
+                        <a href="/Manager/Requests?status=Pending" class="sidebar-menu-link @(currentController == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Requests" && Context.Request.Query["status"] == "Pending" ? "active" : "")">Pending Requests</a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Overtime Requests</a>
+                        <a href="/Manager/Requests?status=Processed" class="sidebar-menu-link @(currentController == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Requests" && Context.Request.Query["status"] == "Processed" ? "active" : "")">Processed Requests</a>
+                    </li>
+                    <div class="sidebar-section-title">Income</div>
+                    <li class="sidebar-menu-item">
+                        <a href="/Manager/Income" class="sidebar-menu-link @(currentController == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Income" ? "active" : "")">Income Statistics</a>
                     </li>
                     <div class="sidebar-section-title">Documents</div>
                     <li class="sidebar-menu-item">
@@ -385,10 +389,14 @@
                 {
                     <div class="sidebar-section-title">My Work</div>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">Attendance</a>
+                        <a href="/Employee/Attendance" class="sidebar-menu-link @(currentController == "Employee" && ViewContext.RouteData.Values["action"]?.ToString() == "Attendance" ? "active" : "")">Attendance</a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="#" class="sidebar-menu-link">My Requests</a>
+                        <a href="/Employee/Requests" class="sidebar-menu-link @(currentController == "Employee" && ViewContext.RouteData.Values["action"]?.ToString() == "Requests" ? "active" : "")">My Requests</a>
+                    </li>
+                    <div class="sidebar-section-title">Income</div>
+                    <li class="sidebar-menu-item">
+                        <a href="/Employee/Income" class="sidebar-menu-link @(currentController == "Employee" && ViewContext.RouteData.Values["action"]?.ToString() == "Income" ? "active" : "")">Income Statistics</a>
                     </li>
                     <div class="sidebar-section-title">Documents</div>
                     <li class="sidebar-menu-item">

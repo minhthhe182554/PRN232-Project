@@ -18,14 +18,20 @@ namespace HRM_API.Services
 
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
-            // find User by username
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
+            // find User by username (including inactive to check if banned)
+            var user = await _userRepository.GetByUsernameIncludingInactiveAsync(request.Username);
             if (user == null)
                 return null;
 
             // Verify password 
             if (!PasswordService.VerifyPassword(request.Password, user.Password))
                 return null;
+
+            // Check if user is banned
+            if (!user.IsActive)
+            {
+                throw new UnauthorizedAccessException("Your account has been disabled by administrator");
+            }
 
             // Create JWT token 
             var token = _jwtService.GenerateToken(user);

@@ -12,6 +12,7 @@ namespace HRM_API.Dtos
         public bool IsActive { get; set; } = true; // soft-delete
         public string? DepartmentName { get; set; }
         public string? ManagedDepartmentName { get; set; }
+        public AttendanceStatus? TodayAttendanceStatus { get; set; }
     }
 }
 
